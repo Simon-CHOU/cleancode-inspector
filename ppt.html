@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人成长 - TK</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <!-- Reveal.js Black Theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    
+    <style>
+        /* 避免 Tailwind 的基础样式干扰 Reveal.js 的字号和排版 */
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+            text-transform: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        /* 自定义幻灯片背景与间距 */
+        .reveal .slides section {
+            text-align: left;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: #e5e5e5;
+        }
+        /* 覆盖 Reveal.js 默认的列表样式，以便更好地配合 Tailwind */
+        .reveal ul {
+            display: block;
+            margin: 0;
+        }
+        .reveal .slides section .slide-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: normal;
+            color: #ffffff;
+            margin-bottom: 2rem;
+            letter-spacing: 0.1em;
+        }
+        /* 页脚 Logo 样式 */
+        .slide-footer {
+            position: absolute;
+            bottom: -40px;
+            right: 0;
+            display: flex;
+            align-items: center;
+            color: #555;
+            font-size: 0.9rem;
+            font-family: sans-serif;
+        }
+        .slide-footer svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+            fill: currentColor;
+        }
+        /* 特殊引用框样式 */
+        .quote-block {
+            background-color: #111111;
+            border-left: 4px solid #444;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Slide 1: 封面 -->
+            <section class="flex flex-col justify-center items-center h-full !text-center">
+                <h1 class="!text-5xl !text-white !font-normal mb-6 tracking-widest">个人成长</h1>
+                <p class="text-xl text-gray-400 mb-2">2016.1 内部交流</p>
+                <p class="text-xl text-gray-400">TK</p>
+                
+                <div class="slide-footer !left-1/2 !-translate-x-1/2 !right-auto">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    腾讯安全平台部
+                </div>
+            </section>
+
+            <!-- Slide 2: 个人成长主体 -->
+            <section>
+                <h2 class="slide-title">个人成长</h2>
+                <div class="max-w-4xl mx-auto">
+                    <ul class="list-disc pl-6 space-y-4">
+                        <li>
+                            <span class="text-white font-medium">确立个人方向</span>，结合工作内容，找出对应短板
+                            <ul class="list-none pl-6 text-gray-400 text-base mt-1 space-y-1">
+                                <li>– 该领域主要专家的工作是否都了解？</li>
+                                <li>– 相关网络协议、文件格式是否熟悉？</li>
+                                <li>– 相关的技术和主要工具是否看过、用过？</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span class="text-white font-medium">阅读只是学习过程的起点</span>，不能止于阅读
+                            <ul class="list-none pl-6 text-gray-400 text-base mt-1 space-y-1">
+                                <li>– 工具的每个参数每个菜单都要看、要试</li>
+                                <li>– 学习网络协议要实际抓包分析，学习文件格式要凑代码实现</li>
+                                <li>– 学习老漏洞一定要调试，搞懂别人代码每一个字节的意义，之后要完全自己重写一个 Exploit</li>
+                                <li>– 细节，细节，细节，刨根问底</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="slide-footer">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    腾讯安全平台部
+                </div>
+            </section>
+
+            <!-- Slide 3: 建立学习参考目标 -->
+            <section>
+                <h2 class="slide-title">建立学习参考目标</h2>
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div>
+                        <p class="text-white font-medium">
+                            • 短期参考什么？ <span class="text-emerald-400">比自己优秀的同龄人</span>
+                        </p>
+                        <ul class="list-none pl-6 text-gray-400 text-base mt-1">
+                            <li>– 阅读他们的文章和其它工作成果，从细节中观察他们的学习方式和工作方式</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">
+                            • 中期参考什么？ <span class="text-emerald-400">你的方向上的业内专家</span>
+                        </p>
+                        <ul class="list-none pl-6 text-gray-400 text-base mt-1">
+                            <li>– 了解他们的成长轨迹，跟踪他们关注的内容</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">
+                            • 长期参考什么？ <span class="text-emerald-400">业内老牌企业和先锋企业</span>
+                        </p>
+                        <ul class="list-none pl-6 text-gray-400 text-base mt-1">
+                            <li>– 把握行业发展、技术趋势，为未来做积累</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="slide-footer">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    腾讯安全平台部
+                </div>
+            </section>
+
+            <!-- Slide 4: 推荐的学习方式 -->
+            <section>
+                <h2 class="slide-title">推荐的学习方式</h2>
+                <div class="max-w-4xl mx-auto space-y-4">
+                    <div>
+                        <span class="text-white font-medium">• 以工具为线索</span>
+                        <ul class="list-none pl-6 text-gray-400 text-base mt-1 space-y-1">
+                            <li>– 一个比较省事的学习目录：<span class="text-gray-300">Kali Linux</span></li>
+                            <li>– 学习思路，以 <span class="text-gray-300">Metasploit</span> 为例：
+                                <ul class="list-disc pl-6 text-gray-500 text-sm mt-1 space-y-0.5">
+                                    <li>遍历每个子目录，除了 Exploit 里面还有什么？</li>
+                                    <li>每个工具分别有什么功能？原理是什么？涉及哪些知识？</li>
+                                    <li>能否改进优化？能否发现、组合出新的功能？</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="text-white font-medium">• 以专家为线索</span>
+                        <ul class="list-none pl-6 text-gray-400 text-base mt-1 space-y-1">
+                            <li>– 你的技术方向里有哪些专家？</li>
+                            <li>– 他们的邮箱、主页、社交网络账号是什么？</li>
+                            <li>– 他们在该方向上有哪些作品？发表过哪些演讲？</li>
+                            <li>– 跟踪关注，一个一个学</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="slide-footer">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    腾讯安全平台部
+                </div>
+            </section>
+
+            <!-- Slide 5: 处理好学习、工作和生活 -->
+            <section>
+                <h2 class="slide-title">处理好学习、工作和生活</h2>
+                <div class="max-w-4xl mx-auto space-y-3">
+                    <p class="text-white font-medium">• 学习、工作和生活是矛盾统一的</p>
+                    <p class="text-white font-medium">
+                        • 三者都需要时间，你一天只有 24 小时
+                        <span class="block text-gray-400 text-base pl-6">– 调和矛盾的关键：提高效率</span>
+                    </p>
+                    <p class="text-white font-medium">• 对没有一个好爸爸的人来说，你的学习、工作会影响你能不能追求诗和远方</p>
+                    <div>
+                        <p class="text-white font-medium">• 有好爸爸也要学习，因为能力之外的资本等于零：</p>
+                        <div class="quote-block rounded">
+                            <div class="bg-zinc-900 text-white p-3 rounded border border-zinc-800">
+                                <div class="flex items-center mb-1">
+                                    <span class="font-bold text-orange-400 mr-2">王思聪 V <span class="text-yellow-500">👑</span>:</span> 
+                                </div>
+                                <p class="text-sm text-zinc-300">SAT不是满分我们一般都没脸说考过</p>
+                                <p class="text-xs text-zinc-500 mt-2">2015-10-31 11:53</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    腾讯安全平台部
+                </div>
+            </section>
+
+            <!-- Slide 6: 如何提高效率 -->
+            <section>
+                <h2 class="slide-title">如何提高效率</h2>
+                <div class="max-w-4xl mx-auto">
+                    <ul class="list-disc pl-6 space-y-3 text-gray-300">
+                        <li>做好调研，收集相关前人成果，避免无谓的重复劳动</li>
+                        <li>在可行性判断阶段，能找到工具就不写代码，能用脚本语言写就不要用编译语言，把完美主义放在最终实现阶段</li>
+                        <li>做好笔记并定期整理，遗忘会让所有的投入都白白浪费</li>
+                        <li>多和同事交流，别人说一个工具的名字可能让你节约数小时</li>
+                        <li>咖啡可以提高思维效率，而且合法</li>
+                    </ul>
+                    
+                    <p class="text-center mt-10 text-xl text-white font-bold tracking-wide bg-zinc-900/50 py-3 rounded border border-zinc-800/50">
+                        无论怎么提高效率，要成为专家，都需要大量的时间投入
+                    </p>
+                </div>
+
+                <div class="slide-footer">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    腾讯安全平台部
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script>
+        // 初始化 Reveal.js 并配置选项
+        Reveal.initialize({
+            hash: false,      // 修复：禁用哈希以防止 iframe 沙箱环境中的安全限制错误
+            history: false,   // 修复：禁用历史记录同步以避免 replaceState 错误
+            controls: true,
+            progress: true,
+            center: true,
+            transition: 'slide', // 切换效果：none/fade/slide/convex/concave/zoom
+            width: 1000,
+            height: 700,
+            margin: 0.1,
+            minScale: 0.2,
+            maxScale: 2.0
+        });
+    </script>
+</body>
+</html>
