@@ -60,7 +60,7 @@ describe("mapping MCP service", () => {
     expect(result.mapping_result.findings.length).toBeGreaterThan(0);
     expect(result.mapping_result.documents.some((item) => item.kind === "code")).toBe(true);
     expect(result.mapping_result.documents.some((item) => item.kind === "pdf")).toBe(true);
-  });
+  }, 15000);
 
   it("returns partial result when no textbook evidence is retrieved", async () => {
     const app = createApplication({ baseDir: createTempDir() });
@@ -78,5 +78,5 @@ describe("mapping MCP service", () => {
 
     expect(result.status).toBe("partial");
     expect(result.mapping_result.findings.length).toBe(0);
-  });
+  }, 15000);
 });

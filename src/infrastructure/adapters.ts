@@ -1,4 +1,8 @@
 import { basename } from "node:path";
+import { accessSync, constants as fsConstants } from "node:fs";
+
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 import type {
   CodeObservation,
@@ -26,6 +30,37 @@ import { BasicSchemaValidationService, ObservationDeduper } from "../domain/serv
 interface BookEvidenceTemplate {
   concept: MappingConcept;
   anchors: MappingAnchor[];
+}
+
+interface PdfReaderSearchMatch {
+  id?: string;
+  page?: number;
+  text?: string;
+  snippet?: string;
+  bounding_box?: {
+    left: number;
+    bottom: number;
+    right: number;
+    top: number;
+  };
+}
+
+interface PdfReaderSearchResponse {
+  results?: Array<{
+    source?: string;
+    success?: boolean;
+    matches?: PdfReaderSearchMatch[];
+  }>;
+}
+
+export interface PdfReaderMcpClientPort {
+  searchPdf(input: {
+    path: string;
+    query: string;
+    maxPages?: number;
+    maxMatchesPerSource?: number;
+    contextChars?: number;
+  }): Promise<PdfReaderSearchResponse>;
 }
 
 const BOOK_EVIDENCE_BY_CATEGORY: Record<string, BookEvidenceTemplate> = {
@@ -112,6 +147,15 @@ const BOOK_EVIDENCE_BY_CATEGORY: Record<string, BookEvidenceTemplate> = {
       pdfAnchor("anchor-pdf-p171", 171, "has a single reason to change")
     ]
   }
+};
+
+const SEARCH_QUERY_BY_CATEGORY: Record<string, string[]> = {
+  function_design: ["FUNCTIONS SHOULD DO ONE THING", "do one thing"],
+  abstraction_level: ["One Level of Abstraction per Function", "Stepdown Rule"],
+  naming: ["Avoid Disinformation", "answer all the big questions"],
+  magic_number: ["Replace Magic Numbers with Named Constants", "Magic Numbers"],
+  comments: ["Comments are always failures", "Redundant Comments"],
+  class_responsibility: ["reason to change", "single reason to change"]
 };
 
 function pdfAnchor(id: string, page: number, quote: string): MappingAnchor {
@@ -419,6 +463,174 @@ export class StaticPdfCorpusRetrieverAdapter implements PdfCorpusRetrieverPort {
         }
       ];
     });
+  }
+}
+
+export class ExternalPdfReaderMcpClient implements PdfReaderMcpClientPort {
+  private client: Client | null = null;
+
+  private transport: StdioClientTransport | null = null;
+
+  async searchPdf(input: {
+    path: string;
+    query: string;
+    maxPages?: number;
+    maxMatchesPerSource?: number;
+    contextChars?: number;
+  }): Promise<PdfReaderSearchResponse> {
+    const client = await this.getClient();
+    const response = await client.callTool({
+      name: "search_pdf",
+      arguments: {
+        sources: [{ path: input.path }],
+        query: input.query,
+        max_pages: input.maxPages ?? 120,
+        max_matches_per_source: input.maxMatchesPerSource ?? 8,
+        context_chars: input.contextChars ?? 160
+      }
+    });
+
+    const responseContent = Array.isArray((response as { content?: unknown }).content)
+      ? ((response as { content: unknown[] }).content as unknown[])
+      : [];
+
+    const textContent = responseContent.find(
+      (item): item is { type: "text"; text: string } =>
+        typeof item === "object" &&
+        item !== null &&
+        "type" in item &&
+        "text" in item &&
+        (item as { type?: unknown }).type === "text" &&
+        typeof (item as { text?: unknown }).text === "string"
+    );
+
+    if (!textContent) {
+      return { results: [] };
+    }
+
+    try {
+      return JSON.parse(textContent.text) as PdfReaderSearchResponse;
+    } catch {
+      return { results: [] };
+    }
+  }
+
+  private async getClient(): Promise<Client> {
+    if (this.client) {
+      return this.client;
+    }
+
+    this.transport = new StdioClientTransport({
+      command: "npx",
+      args: ["-y", "@sylphx/pdf-reader-mcp"],
+      stderr: "pipe"
+    });
+
+    const client = new Client({
+      name: "mapping-mcp-retriever-client",
+      version: "0.1.0"
+    });
+    await client.connect(this.transport);
+    this.client = client;
+    return client;
+  }
+}
+
+export class McpPdfCorpusRetrieverAdapter implements PdfCorpusRetrieverPort {
+  constructor(private readonly client: PdfReaderMcpClientPort) {}
+
+  async retrieve(input: {
+    corpus: { id: string; versionId: string; title: string; pdfPath: string; ready: boolean };
+    observations: CodeObservation[];
+  }): Promise<RetrievedEvidenceCandidate[]> {
+    const candidates: RetrievedEvidenceCandidate[] = [];
+
+    for (const observation of input.observations) {
+      const queries = SEARCH_QUERY_BY_CATEGORY[observation.category] ?? [];
+      const anchors: MappingAnchor[] = [];
+
+      for (const query of queries) {
+        const response = await this.client.searchPdf({
+          path: input.corpus.pdfPath,
+          query
+        });
+        const parsedAnchors = this.mapResponseToAnchors(response);
+        parsedAnchors.forEach((anchor) => {
+          if (!anchors.some((item) => item.id === anchor.id)) {
+            anchors.push(anchor);
+          }
+        });
+        if (anchors.length) {
+          break;
+        }
+      }
+
+      if (anchors.length) {
+        candidates.push({
+          observation_id: observation.observation_id,
+          category: observation.category,
+          anchors
+        });
+      }
+    }
+
+    return candidates;
+  }
+
+  private mapResponseToAnchors(response: PdfReaderSearchResponse): MappingAnchor[] {
+    return (response.results ?? [])
+      .filter((result) => result.success)
+      .flatMap((result) =>
+        (result.matches ?? [])
+          .filter((match) => typeof match.page === "number" && Boolean(match.snippet || match.text))
+          .map((match) => {
+            const text = match.snippet ?? match.text ?? "";
+            return {
+              id: `anchor-pdf-p${match.page}-${(match.id ?? text).replace(/[^a-zA-Z0-9_-]+/g, "-")}`,
+              document_id: "doc-clean-code-pdf",
+              kind: "pdf_span" as const,
+              locator: {
+                page: match.page,
+                bbox: match.bounding_box
+                  ? [
+                      match.bounding_box.left,
+                      match.bounding_box.bottom,
+                      match.bounding_box.right,
+                      match.bounding_box.top
+                    ]
+                  : null,
+                quote: text
+              },
+              deep_link: `Clean_Code.pdf#page=${match.page}&zoom=page-width`,
+              quote: text,
+              confidence: 0.9
+            };
+          })
+      );
+  }
+}
+
+export class HybridPdfCorpusRetrieverAdapter implements PdfCorpusRetrieverPort {
+  constructor(
+    private readonly primary: PdfCorpusRetrieverPort,
+    private readonly fallback: PdfCorpusRetrieverPort
+  ) {}
+
+  async retrieve(input: {
+    corpus: { id: string; versionId: string; title: string; pdfPath: string; ready: boolean };
+    observations: CodeObservation[];
+  }): Promise<RetrievedEvidenceCandidate[]> {
+    const primaryResult = await this.primary.retrieve(input);
+    return primaryResult.length ? primaryResult : this.fallback.retrieve(input);
+  }
+}
+
+export function hasLocalPdf(path: string): boolean {
+  try {
+    accessSync(path, fsConstants.R_OK);
+    return true;
+  } catch {
+    return false;
   }
 }
 
