@@ -1,0 +1,805 @@
+{
+  "schema_version": "1.0.0",
+  "task": {
+    "id": "task-abstract-task-engine-clean-code",
+    "goal": "从源码类映射到教材中的精准溯源与交叉引用结果",
+    "created_at": "2026-06-16T00:00:00Z",
+    "language": "zh-CN"
+  },
+  "documents": [
+    {
+      "id": "doc-clean-code-pdf",
+      "kind": "pdf",
+      "title": "Clean Code",
+      "path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\Clean_Code.pdf",
+      "page_count": 462
+    },
+    {
+      "id": "doc-abstract-task-engine",
+      "kind": "code",
+      "title": "AbstractTaskEngine.java",
+      "path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\AbstractTaskEngine.java",
+      "language": "java",
+      "content": "package com.myschneider.myschneider.dec_happy.engine;\n\nimport com.myschneider.myschneider.dec_happy.dto.ProcessRequest;\nimport com.myschneider.myschneider.dec_happy.dto.ProcessResponse;\nimport com.myschneider.myschneider.dec_happy.entity.ProjectTask;\nimport com.myschneider.myschneider.dec_happy.service.ProjectTaskService;\nimport org.springframework.beans.factory.annotation.Autowired;\n\npublic abstract class AbstractTaskEngine implements TaskEngine {\n\n    @Autowired\n    protected ProjectTaskService projectTaskService;\n\n    @Override\n    public void start(ProcessRequest request, ProcessResponse response) {\n        doHandler(request, response);\n    }\n\n    @Override\n    public void complete(ProcessRequest request, ProcessResponse response) {\n        beforeComplete(request, response);\n        projectTaskService.completeTask(request.getTaskId());\n        ProjectTask nextTask = createNextTaskInfo(request);\n        projectTaskService.createNextTask(nextTask);\n        afterCompleted(request, response, nextTask);\n    }\n\n    protected void doHandler(ProcessRequest request, ProcessResponse response) {\n        // Default implementation\n    }\n\n    protected abstract void beforeComplete(ProcessRequest request, ProcessResponse response);\n\n    protected abstract void afterCompleted(ProcessRequest request, ProcessResponse response, ProjectTask projectTask);\n\n    protected abstract String getTaskAssignRoleCode(ProcessRequest request);\n\n    private ProjectTask createNextTaskInfo(ProcessRequest request) {\n        ProjectTask task = new ProjectTask();\n        task.setProcessNodeCode(getTaskAssignRoleCode(request));\n        task.setProcessUserId(request.getUserId());\n        task.setStatus(0);\n        return task;\n    }\n}"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "anchor-code-complete-method",
+      "document_id": "doc-abstract-task-engine",
+      "kind": "code_span",
+      "locator": {
+        "file_path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\AbstractTaskEngine.java",
+        "line_start": 20,
+        "line_end": 25,
+        "symbol_path": "AbstractTaskEngine.complete(ProcessRequest, ProcessResponse)"
+      },
+      "deep_link": "file:///d:/ml/ppt-vibe/tk-personal-growth/AbstractTaskEngine.java#L20-L25",
+      "quote": "beforeComplete -> completeTask -> createNextTaskInfo -> createNextTask -> afterCompleted",
+      "confidence": 1.0
+    },
+    {
+      "id": "anchor-code-handler",
+      "document_id": "doc-abstract-task-engine",
+      "kind": "code_span",
+      "locator": {
+        "file_path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\AbstractTaskEngine.java",
+        "line_start": 28,
+        "line_end": 30,
+        "symbol_path": "AbstractTaskEngine.doHandler(ProcessRequest, ProcessResponse)"
+      },
+      "deep_link": "file:///d:/ml/ppt-vibe/tk-personal-growth/AbstractTaskEngine.java#L28-L30",
+      "quote": "protected void doHandler(...) { // Default implementation }",
+      "confidence": 1.0
+    },
+    {
+      "id": "anchor-code-role-code",
+      "document_id": "doc-abstract-task-engine",
+      "kind": "code_span",
+      "locator": {
+        "file_path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\AbstractTaskEngine.java",
+        "line_start": 36,
+        "line_end": 40,
+        "symbol_path": "AbstractTaskEngine.getTaskAssignRoleCode(ProcessRequest)"
+      },
+      "deep_link": "file:///d:/ml/ppt-vibe/tk-personal-growth/AbstractTaskEngine.java#L36-L40",
+      "quote": "getTaskAssignRoleCode(request) -> task.setProcessNodeCode(...)",
+      "confidence": 1.0
+    },
+    {
+      "id": "anchor-code-create-next-task",
+      "document_id": "doc-abstract-task-engine",
+      "kind": "code_span",
+      "locator": {
+        "file_path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\AbstractTaskEngine.java",
+        "line_start": 38,
+        "line_end": 43,
+        "symbol_path": "AbstractTaskEngine.createNextTaskInfo(ProcessRequest)"
+      },
+      "deep_link": "file:///d:/ml/ppt-vibe/tk-personal-growth/AbstractTaskEngine.java#L38-L43",
+      "quote": "private ProjectTask createNextTaskInfo(ProcessRequest request)",
+      "confidence": 1.0
+    },
+    {
+      "id": "anchor-code-magic-number",
+      "document_id": "doc-abstract-task-engine",
+      "kind": "code_span",
+      "locator": {
+        "file_path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\AbstractTaskEngine.java",
+        "line_start": 42,
+        "line_end": 42,
+        "symbol_path": "AbstractTaskEngine.createNextTaskInfo(ProcessRequest)"
+      },
+      "deep_link": "file:///d:/ml/ppt-vibe/tk-personal-growth/AbstractTaskEngine.java#L42-L42",
+      "quote": "task.setStatus(0);",
+      "confidence": 1.0
+    },
+    {
+      "id": "anchor-code-class-scope",
+      "document_id": "doc-abstract-task-engine",
+      "kind": "code_span",
+      "locator": {
+        "file_path": "d:\\ml\\ppt-vibe\\tk-personal-growth\\AbstractTaskEngine.java",
+        "line_start": 9,
+        "line_end": 45,
+        "symbol_path": "AbstractTaskEngine"
+      },
+      "deep_link": "file:///d:/ml/ppt-vibe/tk-personal-growth/AbstractTaskEngine.java#L9-L45",
+      "quote": "abstract class + template hooks + next task construction",
+      "confidence": 1.0
+    },
+    {
+      "id": "anchor-pdf-p49",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 49,
+        "bbox": null,
+        "quote": "The name of a variable, function, or class, should answer all the big questions."
+      },
+      "deep_link": "Clean_Code.pdf#page=49&zoom=page-width",
+      "quote": "The name of a variable, function, or class, should answer all the big questions.",
+      "confidence": 0.95
+    },
+    {
+      "id": "anchor-pdf-p50",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 50,
+        "bbox": null,
+        "quote": "Avoid Disinformation"
+      },
+      "deep_link": "Clean_Code.pdf#page=50&zoom=page-width",
+      "quote": "Avoid Disinformation",
+      "confidence": 0.92
+    },
+    {
+      "id": "anchor-pdf-p66",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 66,
+        "bbox": null,
+        "quote": "FUNCTIONS SHOULD DO ONE THING. THEY SHOULD DO IT WELL."
+      },
+      "deep_link": "Clean_Code.pdf#page=66&zoom=page-width",
+      "quote": "FUNCTIONS SHOULD DO ONE THING. THEY SHOULD DO IT WELL.",
+      "confidence": 0.97
+    },
+    {
+      "id": "anchor-pdf-p67",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 67,
+        "bbox": null,
+        "quote": "One Level of Abstraction per Function"
+      },
+      "deep_link": "Clean_Code.pdf#page=67&zoom=page-width",
+      "quote": "One Level of Abstraction per Function",
+      "confidence": 0.94
+    },
+    {
+      "id": "anchor-pdf-p68",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 68,
+        "bbox": null,
+        "quote": "Reading Code from Top to Bottom: The Stepdown Rule"
+      },
+      "deep_link": "Clean_Code.pdf#page=68&zoom=page-width",
+      "quote": "Reading Code from Top to Bottom: The Stepdown Rule",
+      "confidence": 0.9
+    },
+    {
+      "id": "anchor-pdf-p85",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 85,
+        "bbox": null,
+        "quote": "Comments are always failures."
+      },
+      "deep_link": "Clean_Code.pdf#page=85&zoom=page-width",
+      "quote": "Comments are always failures.",
+      "confidence": 0.94
+    },
+    {
+      "id": "anchor-pdf-p86",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 86,
+        "bbox": null,
+        "quote": "Explain Yourself in Code"
+      },
+      "deep_link": "Clean_Code.pdf#page=86&zoom=page-width",
+      "quote": "Explain Yourself in Code",
+      "confidence": 0.9
+    },
+    {
+      "id": "anchor-pdf-p91",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 91,
+        "bbox": null,
+        "quote": "Redundant Comments"
+      },
+      "deep_link": "Clean_Code.pdf#page=91&zoom=page-width",
+      "quote": "Redundant Comments",
+      "confidence": 0.92
+    },
+    {
+      "id": "anchor-pdf-p169",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 169,
+        "bbox": null,
+        "quote": "and only one, reason to change."
+      },
+      "deep_link": "Clean_Code.pdf#page=169&zoom=page-width",
+      "quote": "and only one, reason to change.",
+      "confidence": 0.92
+    },
+    {
+      "id": "anchor-pdf-p171",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 171,
+        "bbox": null,
+        "quote": "has a single reason to change"
+      },
+      "deep_link": "Clean_Code.pdf#page=171&zoom=page-width",
+      "quote": "has a single reason to change",
+      "confidence": 0.88
+    },
+    {
+      "id": "anchor-pdf-p331",
+      "document_id": "doc-clean-code-pdf",
+      "kind": "pdf_span",
+      "locator": {
+        "page": 331,
+        "bbox": null,
+        "quote": "Replace Magic Numbers with Named Constants"
+      },
+      "deep_link": "Clean_Code.pdf#page=331&zoom=page-width",
+      "quote": "Replace Magic Numbers with Named Constants",
+      "confidence": 0.95
+    }
+  ],
+  "concepts": [
+    {
+      "id": "concept-function-design",
+      "name": "函数设计",
+      "category": "function-design",
+      "chapter_hint": "Functions",
+      "keywords": [
+        "do one thing",
+        "abstraction",
+        "stepdown"
+      ],
+      "summary": "函数应只承担单一职责，并保持一致的抽象层级。"
+    },
+    {
+      "id": "concept-naming",
+      "name": "命名与语义",
+      "category": "naming",
+      "chapter_hint": "Meaningful Names",
+      "keywords": [
+        "intention-revealing",
+        "avoid disinformation"
+      ],
+      "summary": "命名应直接表达真实语义，避免误导。"
+    },
+    {
+      "id": "concept-comments",
+      "name": "注释与自解释代码",
+      "category": "comments",
+      "chapter_hint": "Comments",
+      "keywords": [
+        "comments are failures",
+        "redundant comments",
+        "explain yourself in code"
+      ],
+      "summary": "优先让代码自解释，避免冗余或补救式注释。"
+    },
+    {
+      "id": "concept-class-responsibility",
+      "name": "类职责边界",
+      "category": "class-design",
+      "chapter_hint": "Classes",
+      "keywords": [
+        "reason to change",
+        "single responsibility"
+      ],
+      "summary": "类和模块应尽量只承载一个变化原因。"
+    },
+    {
+      "id": "concept-constants",
+      "name": "常量与可读性",
+      "category": "readability",
+      "chapter_hint": "General",
+      "keywords": [
+        "magic numbers",
+        "named constants"
+      ],
+      "summary": "避免魔法值，用常量或枚举显式表达业务含义。"
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-complete-too-much",
+      "title": "complete() 职责过多",
+      "summary": "该方法同时做前置钩子、完成当前任务、构造下一任务、持久化下一任务和后置钩子，偏离单一职责。",
+      "severity": "high",
+      "confidence": 0.93,
+      "concept_ids": [
+        "concept-function-design"
+      ],
+      "primary_code_anchor_ids": [
+        "anchor-code-complete-method"
+      ],
+      "primary_pdf_anchor_ids": [
+        "anchor-pdf-p66"
+      ],
+      "tags": [
+        "职责过多",
+        "流程编排"
+      ],
+      "representative_evidence_ids": [
+        "ev-code-complete-observed",
+        "ev-pdf-do-one-thing"
+      ]
+    },
+    {
+      "id": "finding-mixed-abstraction-level",
+      "title": "complete() 混杂高层编排和底层细节",
+      "summary": "模板方法式编排与 task 创建、service 调用混杂在一起，抽象层级不统一。",
+      "severity": "high",
+      "confidence": 0.9,
+      "concept_ids": [
+        "concept-function-design"
+      ],
+      "primary_code_anchor_ids": [
+        "anchor-code-complete-method"
+      ],
+      "primary_pdf_anchor_ids": [
+        "anchor-pdf-p67",
+        "anchor-pdf-p68"
+      ],
+      "tags": [
+        "抽象层次",
+        "stepdown"
+      ],
+      "representative_evidence_ids": [
+        "ev-pdf-one-level",
+        "ev-pdf-stepdown"
+      ]
+    },
+    {
+      "id": "finding-naming-issues",
+      "title": "命名不够表意且存在语义错位",
+      "summary": "doHandler、createNextTaskInfo、getTaskAssignRoleCode 的名称没有准确表达职责，且 roleCode 写入 nodeCode 容易误导读者。",
+      "severity": "medium",
+      "confidence": 0.91,
+      "concept_ids": [
+        "concept-naming"
+      ],
+      "primary_code_anchor_ids": [
+        "anchor-code-handler",
+        "anchor-code-role-code",
+        "anchor-code-create-next-task"
+      ],
+      "primary_pdf_anchor_ids": [
+        "anchor-pdf-p49",
+        "anchor-pdf-p50"
+      ],
+      "tags": [
+        "命名",
+        "误导语义"
+      ],
+      "representative_evidence_ids": [
+        "ev-pdf-name-big-questions",
+        "ev-code-role-code"
+      ]
+    },
+    {
+      "id": "finding-magic-number",
+      "title": "status(0) 缺乏业务语义",
+      "summary": "直接写入 0 使状态语义不自解释，应使用常量或枚举。",
+      "severity": "medium",
+      "confidence": 0.95,
+      "concept_ids": [
+        "concept-constants"
+      ],
+      "primary_code_anchor_ids": [
+        "anchor-code-magic-number"
+      ],
+      "primary_pdf_anchor_ids": [
+        "anchor-pdf-p331"
+      ],
+      "tags": [
+        "魔法值",
+        "可读性"
+      ],
+      "representative_evidence_ids": [
+        "ev-pdf-magic-number",
+        "ev-code-magic-number"
+      ]
+    },
+    {
+      "id": "finding-redundant-comment",
+      "title": "Default implementation 是冗余注释",
+      "summary": "空实现本身已表达默认什么也不做，再加同义注释只会增加维护噪声。",
+      "severity": "low",
+      "confidence": 0.89,
+      "concept_ids": [
+        "concept-comments"
+      ],
+      "primary_code_anchor_ids": [
+        "anchor-code-handler"
+      ],
+      "primary_pdf_anchor_ids": [
+        "anchor-pdf-p85",
+        "anchor-pdf-p86"
+      ],
+      "tags": [
+        "注释",
+        "自解释代码"
+      ],
+      "representative_evidence_ids": [
+        "ev-pdf-comment-failure",
+        "ev-code-handler"
+      ]
+    },
+    {
+      "id": "finding-class-responsibility",
+      "title": "AbstractTaskEngine 类职责边界偏宽",
+      "summary": "这个抽象类不只定义模板流程，还负责下一任务实体构建和字段填充，未来多个变化点都可能落在这里。",
+      "severity": "medium",
+      "confidence": 0.87,
+      "concept_ids": [
+        "concept-class-responsibility"
+      ],
+      "primary_code_anchor_ids": [
+        "anchor-code-class-scope"
+      ],
+      "primary_pdf_anchor_ids": [
+        "anchor-pdf-p169",
+        "anchor-pdf-p171"
+      ],
+      "tags": [
+        "类设计",
+        "变化原因"
+      ],
+      "representative_evidence_ids": [
+        "ev-pdf-reason-to-change",
+        "ev-code-class-scope"
+      ]
+    }
+  ],
+  "evidence_links": [
+    {
+      "id": "ev-code-complete-observed",
+      "finding_id": "finding-complete-too-much",
+      "anchor_id": "anchor-code-complete-method",
+      "relation": "observed_in_code",
+      "score": 0.98,
+      "importance_score": 0.98,
+      "novelty_score": 0.74,
+      "representative": true,
+      "rationale": "该代码片段把多个不同职责的动作串在一个方法里。"
+    },
+    {
+      "id": "ev-pdf-do-one-thing",
+      "finding_id": "finding-complete-too-much",
+      "anchor_id": "anchor-pdf-p66",
+      "relation": "supported_by_book",
+      "score": 0.97,
+      "importance_score": 0.97,
+      "novelty_score": 0.78,
+      "representative": true,
+      "rationale": "该页的原则原句直接支持对职责过多的判断。"
+    },
+    {
+      "id": "ev-pdf-one-level",
+      "finding_id": "finding-mixed-abstraction-level",
+      "anchor_id": "anchor-pdf-p67",
+      "relation": "supported_by_book",
+      "score": 0.94,
+      "importance_score": 0.94,
+      "novelty_score": 0.72,
+      "representative": true,
+      "rationale": "该页强调每个函数应保持统一抽象层级。"
+    },
+    {
+      "id": "ev-pdf-stepdown",
+      "finding_id": "finding-mixed-abstraction-level",
+      "anchor_id": "anchor-pdf-p68",
+      "relation": "supported_by_book",
+      "score": 0.9,
+      "importance_score": 0.9,
+      "novelty_score": 0.61,
+      "representative": true,
+      "rationale": "该页说明代码应按抽象层级自然下行阅读。"
+    },
+    {
+      "id": "ev-code-complete-abstraction",
+      "finding_id": "finding-mixed-abstraction-level",
+      "anchor_id": "anchor-code-complete-method",
+      "relation": "observed_in_code",
+      "score": 0.92,
+      "importance_score": 0.92,
+      "novelty_score": 0.58,
+      "representative": false,
+      "rationale": "同一方法中既有高层编排，又有底层对象构造和持久化。"
+    },
+    {
+      "id": "ev-pdf-name-big-questions",
+      "finding_id": "finding-naming-issues",
+      "anchor_id": "anchor-pdf-p49",
+      "relation": "supported_by_book",
+      "score": 0.95,
+      "importance_score": 0.95,
+      "novelty_score": 0.68,
+      "representative": true,
+      "rationale": "该页对表意命名给出直接规则。"
+    },
+    {
+      "id": "ev-pdf-avoid-disinformation",
+      "finding_id": "finding-naming-issues",
+      "anchor_id": "anchor-pdf-p50",
+      "relation": "supported_by_book",
+      "score": 0.92,
+      "importance_score": 0.88,
+      "novelty_score": 0.71,
+      "representative": false,
+      "rationale": "该页补充说明命名不能误导读者。"
+    },
+    {
+      "id": "ev-code-handler",
+      "finding_id": "finding-naming-issues",
+      "anchor_id": "anchor-code-handler",
+      "relation": "observed_in_code",
+      "score": 0.75,
+      "importance_score": 0.7,
+      "novelty_score": 0.52,
+      "representative": false,
+      "rationale": "doHandler 语义泛化，不能直接反映业务动作。"
+    },
+    {
+      "id": "ev-code-role-code",
+      "finding_id": "finding-naming-issues",
+      "anchor_id": "anchor-code-role-code",
+      "relation": "observed_in_code",
+      "score": 0.93,
+      "importance_score": 0.93,
+      "novelty_score": 0.82,
+      "representative": true,
+      "rationale": "roleCode 写入 nodeCode 是明显的语义错位。"
+    },
+    {
+      "id": "ev-code-create-next-task",
+      "finding_id": "finding-naming-issues",
+      "anchor_id": "anchor-code-create-next-task",
+      "relation": "observed_in_code",
+      "score": 0.86,
+      "importance_score": 0.82,
+      "novelty_score": 0.6,
+      "representative": false,
+      "rationale": "方法名强调 info，但返回实体对象 ProjectTask。"
+    },
+    {
+      "id": "ev-pdf-magic-number",
+      "finding_id": "finding-magic-number",
+      "anchor_id": "anchor-pdf-p331",
+      "relation": "supported_by_book",
+      "score": 0.95,
+      "importance_score": 0.95,
+      "novelty_score": 0.88,
+      "representative": true,
+      "rationale": "书中明确建议用具名常量替代魔法值。"
+    },
+    {
+      "id": "ev-code-magic-number",
+      "finding_id": "finding-magic-number",
+      "anchor_id": "anchor-code-magic-number",
+      "relation": "observed_in_code",
+      "score": 0.98,
+      "importance_score": 0.98,
+      "novelty_score": 0.86,
+      "representative": true,
+      "rationale": "status 直接写 0，没有任何业务语义说明。"
+    },
+    {
+      "id": "ev-pdf-comment-failure",
+      "finding_id": "finding-redundant-comment",
+      "anchor_id": "anchor-pdf-p85",
+      "relation": "supported_by_book",
+      "score": 0.94,
+      "importance_score": 0.94,
+      "novelty_score": 0.73,
+      "representative": true,
+      "rationale": "该页强调注释通常意味着代码表达不够直接。"
+    },
+    {
+      "id": "ev-pdf-explain-in-code",
+      "finding_id": "finding-redundant-comment",
+      "anchor_id": "anchor-pdf-p86",
+      "relation": "supported_by_book",
+      "score": 0.9,
+      "importance_score": 0.86,
+      "novelty_score": 0.64,
+      "representative": false,
+      "rationale": "该页强调更优做法是让代码解释自己。"
+    },
+    {
+      "id": "ev-pdf-redundant-comment",
+      "finding_id": "finding-redundant-comment",
+      "anchor_id": "anchor-pdf-p91",
+      "relation": "supported_by_book",
+      "score": 0.92,
+      "importance_score": 0.88,
+      "novelty_score": 0.78,
+      "representative": false,
+      "rationale": "该页直接命中冗余注释问题。"
+    },
+    {
+      "id": "ev-code-handler-comment",
+      "finding_id": "finding-redundant-comment",
+      "anchor_id": "anchor-code-handler",
+      "relation": "observed_in_code",
+      "score": 0.91,
+      "importance_score": 0.9,
+      "novelty_score": 0.57,
+      "representative": true,
+      "rationale": "Default implementation 注释重复了空实现本身的语义。"
+    },
+    {
+      "id": "ev-pdf-reason-to-change",
+      "finding_id": "finding-class-responsibility",
+      "anchor_id": "anchor-pdf-p169",
+      "relation": "supported_by_book",
+      "score": 0.92,
+      "importance_score": 0.92,
+      "novelty_score": 0.8,
+      "representative": true,
+      "rationale": "该页给出 single reason to change 的核心表述。"
+    },
+    {
+      "id": "ev-pdf-single-reason-collaboration",
+      "finding_id": "finding-class-responsibility",
+      "anchor_id": "anchor-pdf-p171",
+      "relation": "supported_by_book",
+      "score": 0.88,
+      "importance_score": 0.84,
+      "novelty_score": 0.67,
+      "representative": false,
+      "rationale": "该页补充单一职责类的协作方式。"
+    },
+    {
+      "id": "ev-code-class-scope",
+      "finding_id": "finding-class-responsibility",
+      "anchor_id": "anchor-code-class-scope",
+      "relation": "observed_in_code",
+      "score": 0.89,
+      "importance_score": 0.89,
+      "novelty_score": 0.71,
+      "representative": true,
+      "rationale": "类同时承担流程模板和下一任务构造逻辑。"
+    }
+  ],
+  "cross_refs": [
+    {
+      "id": "xref-f1-f2",
+      "from_type": "finding",
+      "from_id": "finding-complete-too-much",
+      "to_type": "finding",
+      "to_id": "finding-mixed-abstraction-level",
+      "relation": "closely_related",
+      "score": 0.91,
+      "reason": "职责过多常伴随抽象层级混杂。"
+    },
+    {
+      "id": "xref-f3-f5",
+      "from_type": "finding",
+      "from_id": "finding-naming-issues",
+      "to_type": "finding",
+      "to_id": "finding-redundant-comment",
+      "relation": "co_occurs",
+      "score": 0.63,
+      "reason": "命名不清时更容易借助注释补救。"
+    },
+    {
+      "id": "xref-concept-func-class",
+      "from_type": "concept",
+      "from_id": "concept-function-design",
+      "to_type": "concept",
+      "to_id": "concept-class-responsibility",
+      "relation": "often_co_occurs",
+      "score": 0.58,
+      "reason": "函数层面的职责问题常延伸到类职责边界。"
+    }
+  ],
+  "ui_indexes": {
+    "default_finding_order": [
+      "finding-complete-too-much",
+      "finding-mixed-abstraction-level",
+      "finding-naming-issues",
+      "finding-magic-number",
+      "finding-redundant-comment",
+      "finding-class-responsibility"
+    ],
+    "finding_groups": [
+      {
+        "id": "group-functions",
+        "title": "函数设计",
+        "finding_ids": [
+          "finding-complete-too-much",
+          "finding-mixed-abstraction-level"
+        ]
+      },
+      {
+        "id": "group-readability",
+        "title": "命名与可读性",
+        "finding_ids": [
+          "finding-naming-issues",
+          "finding-magic-number",
+          "finding-redundant-comment"
+        ]
+      },
+      {
+        "id": "group-class-design",
+        "title": "类设计",
+        "finding_ids": [
+          "finding-class-responsibility"
+        ]
+      }
+    ],
+    "book_coverage": [
+      {
+        "concept_id": "concept-function-design",
+        "matched_pages": [
+          66,
+          67,
+          68
+        ],
+        "match_count": 3
+      },
+      {
+        "concept_id": "concept-naming",
+        "matched_pages": [
+          49,
+          50
+        ],
+        "match_count": 2
+      },
+      {
+        "concept_id": "concept-comments",
+        "matched_pages": [
+          85,
+          86,
+          91
+        ],
+        "match_count": 3
+      },
+      {
+        "concept_id": "concept-class-responsibility",
+        "matched_pages": [
+          169,
+          171
+        ],
+        "match_count": 2
+      },
+      {
+        "concept_id": "concept-constants",
+        "matched_pages": [
+          331
+        ],
+        "match_count": 1
+      }
+    ],
+    "default_selected": {
+      "finding_id": "finding-complete-too-much",
+      "evidence_id": "ev-pdf-do-one-thing"
+    },
+    "hero": {
+      "title": "精准溯源与交叉引用 Demo",
+      "description": "这个原型只绑定 1 个答案、1 个代码文件和 1 个 PDF 教材，用来模拟 Gemini / NotebookLM 风格的“回答 -> 引用 -> 固定位置预览 -> 交叉引用”RAG 场景。点击任意引用标签后，页面会联动到对应的 PDF 页码、代码行段，并给出同一条结论下的相关证据。",
+      "pills": [
+        "答案：前文 Clean Code 审查结论",
+        "代码：AbstractTaskEngine.java",
+        "教材：Clean_Code.pdf"
+      ]
+    },
+    "summary": {
+      "title": "结论摘要",
+      "text": "AbstractTaskEngine.java 的问题主要落在函数职责、抽象层次、命名、魔法值、冗余注释、类职责边界这几类。下面所有内容都从 schema 动态渲染，不再把 mapping 结果硬编码进页面。"
+    }
+  }
+}

@@ -7,19 +7,13 @@
     <style>
         :root {
             color-scheme: dark;
-            --bg: #0b1020;
             --panel: rgba(17, 24, 39, 0.88);
-            --panel-strong: #111827;
-            --panel-soft: #172036;
             --border: rgba(148, 163, 184, 0.16);
             --text: #e5eefc;
             --muted: #98a5c0;
             --accent: #7dd3fc;
-            --accent-strong: #38bdf8;
             --accent-soft: rgba(56, 189, 248, 0.14);
             --code-bg: #0f172a;
-            --ok: #22c55e;
-            --warn: #f59e0b;
             --shadow: 0 20px 50px rgba(2, 6, 23, 0.45);
         }
 
@@ -41,6 +35,11 @@
 
         body {
             padding: 24px;
+        }
+
+        button,
+        a {
+            font: inherit;
         }
 
         .app {
@@ -75,36 +74,60 @@
             line-height: 1.65;
         }
 
-        .hero-meta {
+        .hero-meta,
+        .coverage-list,
+        .group-list,
+        .citations,
+        .cross-list,
+        .related-source-list,
+        .navigator-meta,
+        .preview-actions {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            align-items: start;
-            justify-content: flex-end;
         }
 
-        .pill {
+        .pill,
+        .mini-pill,
+        .coverage-pill,
+        .group-pill,
+        .citation-chip,
+        .link-button,
+        .cross-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 10px 14px;
             border-radius: 999px;
-            background: rgba(15, 23, 42, 0.9);
             border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.9);
             color: var(--text);
+            text-decoration: none;
+            transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+        }
+
+        .pill,
+        .mini-pill,
+        .coverage-pill,
+        .group-pill {
             font-size: 13px;
-            white-space: nowrap;
+        }
+
+        .coverage-pill,
+        .group-pill {
+            background: rgba(8, 15, 31, 0.72);
+            color: var(--muted);
         }
 
         .layout {
             display: grid;
-            grid-template-columns: minmax(340px, 1.3fr) minmax(300px, 1fr) minmax(420px, 1.25fr);
+            grid-template-columns: minmax(360px, 1.35fr) minmax(340px, 1.05fr) minmax(420px, 1.25fr);
             gap: 18px;
             align-items: start;
         }
 
         .panel {
-            min-height: 760px;
+            min-height: 780px;
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border);
@@ -138,23 +161,50 @@
             overflow: auto;
         }
 
-        .summary-box {
-            margin-bottom: 16px;
+        .summary-box,
+        .claim-note,
+        .snippet-card,
+        .cross-panel,
+        .error-card {
             padding: 16px;
             border-radius: 18px;
-            background: rgba(8, 15, 31, 0.65);
-            border: 1px solid rgba(125, 211, 252, 0.18);
+            background: rgba(8, 15, 31, 0.72);
+            border: 1px solid var(--border);
         }
 
-        .summary-box h2 {
+        .summary-box {
+            margin-bottom: 16px;
+            border-color: rgba(125, 211, 252, 0.18);
+        }
+
+        .summary-box h2,
+        .claim-note h3,
+        .snippet-card h4,
+        .code-shell h4,
+        .cross-panel h4,
+        .error-card h2 {
             margin: 0 0 8px;
-            font-size: 16px;
         }
 
-        .summary-box p {
+        .summary-box p,
+        .claim-note p,
+        .snippet-card p,
+        .cross-panel p,
+        .error-card p {
             margin: 0;
             color: var(--muted);
-            line-height: 1.75;
+            line-height: 1.74;
+        }
+
+        .group-block {
+            margin-bottom: 18px;
+        }
+
+        .group-heading {
+            margin: 0 0 10px;
+            font-size: 13px;
+            color: #bfdbfe;
+            letter-spacing: 0.02em;
         }
 
         .claim-card {
@@ -166,41 +216,83 @@
             transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
         }
 
-        .claim-card.active {
-            border-color: rgba(125, 211, 252, 0.44);
-            background: rgba(11, 30, 46, 0.92);
-            transform: translateY(-1px);
+        .claim-card.active,
+        .citation-chip.active,
+        .source-item.active,
+        .cross-link.active,
+        .group-pill.active {
+            border-color: rgba(125, 211, 252, 0.52);
+            background: rgba(14, 36, 54, 0.95);
         }
 
-        .claim-head {
+        .claim-card:hover,
+        .citation-chip:hover,
+        .source-item:hover,
+        .cross-link:hover,
+        .link-button:hover,
+        .group-pill:hover {
+            transform: translateY(-1px);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+        .claim-head,
+        .source-top,
+        .preview-toolbar {
             display: flex;
             justify-content: space-between;
             gap: 12px;
             align-items: center;
+        }
+
+        .claim-head {
+            align-items: start;
             margin-bottom: 10px;
         }
 
-        .claim-index {
+        .claim-index,
+        .claim-principle,
+        .severity-badge,
+        .citation-kind,
+        .source-kind {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 28px;
-            height: 28px;
-            padding: 0 10px;
             border-radius: 999px;
+            font-size: 11px;
+            line-height: 1;
+            padding: 7px 10px;
+        }
+
+        .claim-index {
             background: var(--accent-soft);
             color: var(--accent);
-            font-size: 12px;
             font-weight: 700;
         }
 
         .claim-principle {
-            font-size: 12px;
             color: #bfdbfe;
-            padding: 6px 10px;
             border: 1px solid rgba(191, 219, 254, 0.16);
-            border-radius: 999px;
             background: rgba(59, 130, 246, 0.08);
+        }
+
+        .severity-badge {
+            background: rgba(34, 197, 94, 0.12);
+            color: #86efac;
+        }
+
+        .severity-high {
+            background: rgba(248, 113, 113, 0.12);
+            color: #fca5a5;
+        }
+
+        .severity-medium {
+            background: rgba(250, 204, 21, 0.12);
+            color: #fde68a;
+        }
+
+        .severity-low {
+            background: rgba(134, 239, 172, 0.12);
+            color: #bbf7d0;
         }
 
         .claim-card h3 {
@@ -216,71 +308,16 @@
             font-size: 14px;
         }
 
-        .citations {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .citation-chip,
-        .source-item,
-        .link-button,
-        .cross-link,
-        .mini-pill {
-            transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
-        }
-
-        button {
-            font: inherit;
-            color: inherit;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
         .citation-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             padding: 8px 11px;
             border-radius: 12px;
-            border: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.96);
-            color: var(--text);
             font-size: 12px;
-        }
-
-        .citation-chip:hover,
-        .citation-chip:focus-visible,
-        .source-item:hover,
-        .source-item:focus-visible,
-        .cross-link:hover,
-        .cross-link:focus-visible,
-        .link-button:hover,
-        .link-button:focus-visible {
-            transform: translateY(-1px);
-            border-color: rgba(125, 211, 252, 0.4);
-            outline: none;
-        }
-
-        .citation-chip.active,
-        .source-item.active,
-        .cross-link.active {
-            border-color: rgba(125, 211, 252, 0.52);
-            background: rgba(14, 36, 54, 0.95);
+            cursor: pointer;
         }
 
         .citation-kind,
         .source-kind {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             min-width: 42px;
-            padding: 4px 8px;
-            border-radius: 999px;
-            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.02em;
         }
@@ -295,43 +332,9 @@
             color: #86efac;
         }
 
-        .navigator-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .mini-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(8, 15, 31, 0.72);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .claim-note {
-            padding: 14px 16px;
-            border-radius: 18px;
-            border: 1px solid rgba(56, 189, 248, 0.18);
-            background: rgba(13, 27, 42, 0.66);
-            margin-bottom: 14px;
-        }
-
-        .claim-note h3 {
-            margin: 0 0 6px;
-            font-size: 16px;
-        }
-
-        .claim-note p {
-            margin: 0;
-            color: var(--muted);
-            line-height: 1.72;
-            font-size: 14px;
+        .kind-book {
+            background: rgba(96, 165, 250, 0.12);
+            color: #93c5fd;
         }
 
         .source-list {
@@ -346,12 +349,11 @@
             border-radius: 18px;
             border: 1px solid var(--border);
             background: rgba(15, 23, 42, 0.7);
+            color: var(--text);
+            cursor: pointer;
         }
 
         .source-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
             align-items: start;
             margin-bottom: 10px;
         }
@@ -375,12 +377,26 @@
             font-size: 13px;
         }
 
-        .preview-toolbar {
+        .source-meta {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .meta-tag {
+            display: inline-flex;
             align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--muted);
+            background: rgba(8, 15, 31, 0.68);
+        }
+
+        .preview-toolbar {
+            flex-wrap: wrap;
             margin-bottom: 14px;
         }
 
@@ -396,56 +412,15 @@
             line-height: 1.6;
         }
 
-        .preview-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .link-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.92);
-            color: var(--text);
-            text-decoration: none;
-            font-size: 13px;
+        .link-button,
+        .cross-link,
+        .group-pill {
+            cursor: pointer;
         }
 
         .preview-stack {
             display: grid;
             gap: 14px;
-        }
-
-        .snippet-card,
-        .code-shell,
-        .cross-panel {
-            border-radius: 18px;
-            border: 1px solid var(--border);
-            background: rgba(8, 15, 31, 0.72);
-            overflow: hidden;
-        }
-
-        .snippet-card {
-            padding: 14px 16px;
-        }
-
-        .snippet-card h4,
-        .code-shell h4,
-        .cross-panel h4 {
-            margin: 0 0 8px;
-            font-size: 14px;
-        }
-
-        .snippet-card p,
-        .cross-panel p {
-            margin: 0;
-            color: var(--muted);
-            line-height: 1.7;
-            font-size: 13px;
         }
 
         .pdf-frame {
@@ -454,12 +429,18 @@
             border: 0;
             display: block;
             background: #0b1120;
+            border-radius: 14px;
+            margin-top: 12px;
         }
 
         .code-shell {
             max-height: 420px;
             display: flex;
             flex-direction: column;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: rgba(8, 15, 31, 0.72);
+            overflow: hidden;
         }
 
         .code-shell h4 {
@@ -512,26 +493,9 @@
             line-height: 1.7;
         }
 
-        .cross-panel {
-            padding: 14px 16px;
-        }
-
         .cross-list,
         .related-source-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
             margin-top: 10px;
-        }
-
-        .cross-link {
-            padding: 10px 12px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.84);
-            color: var(--text);
-            text-align: left;
-            font-size: 12px;
         }
 
         .footer-note {
@@ -541,7 +505,16 @@
             line-height: 1.7;
         }
 
-        @media (max-width: 1380px) {
+        .loading {
+            min-height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        @media (max-width: 1420px) {
             .layout {
                 grid-template-columns: 1fr;
             }
@@ -566,21 +539,13 @@
     </style>
 </head>
 <body>
-    <div class="app">
+    <div class="app" id="appRoot">
         <section class="hero">
             <div>
-                <h1>精准溯源与交叉引用 Demo</h1>
-                <p>
-                    这个原型只绑定 1 个答案、1 个代码文件和 1 个 PDF 教材，用来模拟 Gemini / NotebookLM 风格的
-                    “回答 -> 引用 -> 固定位置预览 -> 交叉引用” RAG 场景。点击任意引用标签后，页面会联动到对应的
-                    PDF 页码、代码行段，并给出同一条结论下的相关证据。
-                </p>
+                <h1 id="heroTitle">精准溯源与交叉引用 Demo</h1>
+                <p id="heroDescription">正在加载 schema 数据...</p>
             </div>
-            <div class="hero-meta">
-                <div class="pill">答案：前文 Clean Code 审查结论</div>
-                <div class="pill">代码：`AbstractTaskEngine.java`</div>
-                <div class="pill">教材：`Clean_Code.pdf`</div>
-            </div>
+            <div class="hero-meta" id="heroPills"></div>
         </section>
 
         <section class="layout">
@@ -588,18 +553,17 @@
                 <div class="panel-header">
                     <h2 class="panel-title">回答区</h2>
                     <p class="panel-subtitle">
-                        左侧保留最终回答；每一条判断都挂载结构化引用，引用粒度固定到 PDF 页级和代码行段级。
+                        左侧展示 finding 列表；每条结论都来自 `schema-template.json` 中的结构化 `findings + evidence_links`。
                     </p>
                 </div>
                 <div class="panel-body">
                     <div class="summary-box">
-                        <h2>结论摘要</h2>
-                        <p>
-                            `AbstractTaskEngine.java` 的问题主要落在函数职责、抽象层次、命名、魔法值、冗余注释、
-                            类职责边界这几类。下面每张卡片都可以点开证据，并在右侧查看固定位置预览。
-                        </p>
+                        <h2 id="summaryTitle">结论摘要</h2>
+                        <p id="summaryText">正在加载摘要...</p>
+                        <div class="coverage-list" id="coverageList" style="margin-top: 12px;"></div>
                     </div>
-                    <div id="claimList"></div>
+                    <div class="group-list" id="groupList" style="margin-bottom: 14px;"></div>
+                    <div id="claimList" class="loading">正在读取 mapping schema...</div>
                 </div>
             </article>
 
@@ -607,7 +571,7 @@
                 <div class="panel-header">
                     <h2 class="panel-title">证据导航</h2>
                     <p class="panel-subtitle">
-                        中间列聚合当前结论下的所有引用证据，方便从“问题”快速切到“来源”。
+                        中间列聚合当前结论的证据边，显示锚点位置、证据关系、权重和是否代表证据。
                     </p>
                 </div>
                 <div class="panel-body">
@@ -627,7 +591,7 @@
                 <div class="panel-header">
                     <h2 class="panel-title">固定位置预览与交叉引用</h2>
                     <p class="panel-subtitle">
-                        右侧同步展示证据摘录、PDF 跳转、代码高亮和同结论下的关联来源，模拟精准溯源体验。
+                        右侧同步展示选中证据的摘录、书中页码、代码行高亮以及 schema 中声明的交叉引用关系。
                     </p>
                 </div>
                 <div class="panel-body">
@@ -650,28 +614,26 @@
 
                         <div class="snippet-card">
                             <h4>PDF 固定位置</h4>
-                            <p id="selectedPdfHint">将跳转到 `Clean_Code.pdf` 的对应页码。</p>
-                            <iframe class="pdf-frame" id="pdfFrame" src="Clean_Code.pdf#page=49&zoom=page-width" title="PDF Preview"></iframe>
+                            <p id="selectedPdfHint">将跳转到对应教材页码。</p>
+                            <iframe class="pdf-frame" id="pdfFrame" src="Clean_Code.pdf#page=1&zoom=page-width" title="PDF Preview"></iframe>
                         </div>
 
                         <div class="code-shell">
-                            <h4 id="codeFocusLabel">代码定位：`AbstractTaskEngine.java`</h4>
+                            <h4 id="codeFocusLabel">代码定位</h4>
                             <div class="code-view" id="codeView"></div>
                         </div>
 
                         <div class="cross-panel">
                             <h4>交叉引用</h4>
-                            <p id="crossSummary">
-                                当前证据会带出同一条结论下的其他 PDF 与代码来源，用于回答、引用、跳转之间的横向联动。
-                            </p>
+                            <p id="crossSummary">当前证据会带出 schema 中的 finding 关系、概念簇和同结论下的其他锚点。</p>
                             <div class="cross-list" id="crossClaims"></div>
                             <div class="related-source-list" id="relatedSources"></div>
                         </div>
                     </div>
 
                     <div class="footer-note">
-                        说明：这是一个单页原型，因此 PDF 采用浏览器内置阅读器进行页级跳转；
-                        片段级“精准性”通过页码 + 证据摘录 + 关联代码行段共同呈现。
+                        说明：这个页面不再硬编码 mapping 结果，而是从 `schema-template.json` 读取静态数据并渲染。
+                        当前仍然只服务于这一次已经产出的唯一 mapping。
                     </div>
                 </div>
             </section>
@@ -679,311 +641,26 @@
     </div>
 
     <script>
-        const codeText = `package com.myschneider.myschneider.dec_happy.engine;
-
-import com.myschneider.myschneider.dec_happy.dto.ProcessRequest;
-import com.myschneider.myschneider.dec_happy.dto.ProcessResponse;
-import com.myschneider.myschneider.dec_happy.entity.ProjectTask;
-import com.myschneider.myschneider.dec_happy.service.ProjectTaskService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-public abstract class AbstractTaskEngine implements TaskEngine {
-
-    @Autowired
-    protected ProjectTaskService projectTaskService;
-
-    @Override
-    public void start(ProcessRequest request, ProcessResponse response) {
-        doHandler(request, response);
-    }
-
-    @Override
-    public void complete(ProcessRequest request, ProcessResponse response) {
-        beforeComplete(request, response);
-        projectTaskService.completeTask(request.getTaskId());
-        ProjectTask nextTask = createNextTaskInfo(request);
-        projectTaskService.createNextTask(nextTask);
-        afterCompleted(request, response, nextTask);
-    }
-
-    protected void doHandler(ProcessRequest request, ProcessResponse response) {
-        // Default implementation
-    }
-
-    protected abstract void beforeComplete(ProcessRequest request, ProcessResponse response);
-
-    protected abstract void afterCompleted(ProcessRequest request, ProcessResponse response, ProjectTask projectTask);
-
-    protected abstract String getTaskAssignRoleCode(ProcessRequest request);
-
-    private ProjectTask createNextTaskInfo(ProcessRequest request) {
-        ProjectTask task = new ProjectTask();
-        task.setProcessNodeCode(getTaskAssignRoleCode(request));
-        task.setProcessUserId(request.getUserId());
-        task.setStatus(0);
-        return task;
-    }
-}`;
-
-        const sources = {
-            "code-complete": {
-                id: "code-complete",
-                type: "code",
-                label: "Code L20-L25",
-                title: "complete() 流程编排片段",
-                location: "AbstractTaskEngine.java:L20-L25",
-                excerpt: "complete() 同时做了前置钩子、完成当前任务、创建下一任务、持久化下一任务、后置钩子，职责偏多。",
-                startLine: 20,
-                endLine: 25,
-                relatedPdfId: "pdf-do-one-thing",
-                claimIds: ["claim-1", "claim-2"]
-            },
-            "code-handler": {
-                id: "code-handler",
-                type: "code",
-                label: "Code L28-L30",
-                title: "doHandler() 默认实现片段",
-                location: "AbstractTaskEngine.java:L28-L30",
-                excerpt: "doHandler() 命名抽象且缺乏语义；空实现上的注释 `Default implementation` 也属于重复代码已表达事实。",
-                startLine: 28,
-                endLine: 30,
-                relatedPdfId: "pdf-comment-failure",
-                claimIds: ["claim-3", "claim-5"]
-            },
-            "code-role-code": {
-                id: "code-role-code",
-                type: "code",
-                label: "Code L36-L40",
-                title: "roleCode / nodeCode 命名混用",
-                location: "AbstractTaskEngine.java:L36-L40",
-                excerpt: "getTaskAssignRoleCode() 的返回值却被设置到 processNodeCode，名称和真实含义存在混用，容易造成误解。",
-                startLine: 36,
-                endLine: 40,
-                relatedPdfId: "pdf-naming-big-questions",
-                claimIds: ["claim-3"]
-            },
-            "code-create-next-task": {
-                id: "code-create-next-task",
-                type: "code",
-                label: "Code L38-L43",
-                title: "createNextTaskInfo() 实际返回对象",
-                location: "AbstractTaskEngine.java:L38-L43",
-                excerpt: "方法名说是创建 TaskInfo，实际返回的是 ProjectTask 实体，名字和行为不完全一致。",
-                startLine: 38,
-                endLine: 43,
-                relatedPdfId: "pdf-avoid-disinformation",
-                claimIds: ["claim-3"]
-            },
-            "code-magic-number": {
-                id: "code-magic-number",
-                type: "code",
-                label: "Code L42",
-                title: "status = 0 魔法值",
-                location: "AbstractTaskEngine.java:L42",
-                excerpt: "task.setStatus(0) 没有暴露业务语义，调用者无法通过代码直观看出 0 代表什么状态。",
-                startLine: 42,
-                endLine: 42,
-                relatedPdfId: "pdf-magic-number",
-                claimIds: ["claim-4"]
-            },
-            "code-class-scope": {
-                id: "code-class-scope",
-                type: "code",
-                label: "Code L9-L45",
-                title: "AbstractTaskEngine 整体职责边界",
-                location: "AbstractTaskEngine.java:L9-L45",
-                excerpt: "这个抽象类既做模板流程，又做下一任务实体构建和分配字段填充，变化点不只一个。",
-                startLine: 9,
-                endLine: 45,
-                relatedPdfId: "pdf-reason-to-change",
-                claimIds: ["claim-6"]
-            },
-            "pdf-do-one-thing": {
-                id: "pdf-do-one-thing",
-                type: "pdf",
-                label: "PDF p66",
-                title: "Functions Should Do One Thing",
-                location: "Clean_Code.pdf:p66",
-                excerpt: "“FUNCTIONS SHOULD DO ONE THING. THEY SHOULD DO IT WELL.”",
-                page: 66,
-                url: "Clean_Code.pdf#page=66&zoom=page-width",
-                claimIds: ["claim-1"]
-            },
-            "pdf-one-abstraction": {
-                id: "pdf-one-abstraction",
-                type: "pdf",
-                label: "PDF p67",
-                title: "One Level of Abstraction per Function",
-                location: "Clean_Code.pdf:p67",
-                excerpt: "强调一个函数内部应维持统一的抽象层级，避免高层编排和底层细节混在一起。",
-                page: 67,
-                url: "Clean_Code.pdf#page=67&zoom=page-width",
-                claimIds: ["claim-1", "claim-2"]
-            },
-            "pdf-stepdown": {
-                id: "pdf-stepdown",
-                type: "pdf",
-                label: "PDF p68",
-                title: "The Stepdown Rule",
-                location: "Clean_Code.pdf:p68",
-                excerpt: "Reading Code from Top to Bottom: The Stepdown Rule，强调代码阅读应按层级自然下行。",
-                page: 68,
-                url: "Clean_Code.pdf#page=68&zoom=page-width",
-                claimIds: ["claim-2"]
-            },
-            "pdf-naming-big-questions": {
-                id: "pdf-naming-big-questions",
-                type: "pdf",
-                label: "PDF p49",
-                title: "Use Intention-Revealing Names",
-                location: "Clean_Code.pdf:p49",
-                excerpt: "“The name of a variable, function, or class, should answer all the big questions.”",
-                page: 49,
-                url: "Clean_Code.pdf#page=49&zoom=page-width",
-                claimIds: ["claim-3"]
-            },
-            "pdf-avoid-disinformation": {
-                id: "pdf-avoid-disinformation",
-                type: "pdf",
-                label: "PDF p50",
-                title: "Avoid Disinformation",
-                location: "Clean_Code.pdf:p50",
-                excerpt: "命名不应误导读者；名称与真实职责、真实数据含义应保持一致。",
-                page: 50,
-                url: "Clean_Code.pdf#page=50&zoom=page-width",
-                claimIds: ["claim-3"]
-            },
-            "pdf-magic-number": {
-                id: "pdf-magic-number",
-                type: "pdf",
-                label: "PDF p331",
-                title: "Replace Magic Numbers with Named Constants",
-                location: "Clean_Code.pdf:p331",
-                excerpt: "建议把直接出现的数字提炼为有业务含义的常量或枚举。",
-                page: 331,
-                url: "Clean_Code.pdf#page=331&zoom=page-width",
-                claimIds: ["claim-4"]
-            },
-            "pdf-comment-failure": {
-                id: "pdf-comment-failure",
-                type: "pdf",
-                label: "PDF p85",
-                title: "Comments are always failures",
-                location: "Clean_Code.pdf:p85",
-                excerpt: "“Comments are always failures.” 注释往往意味着代码本身还没有表达清楚。",
-                page: 85,
-                url: "Clean_Code.pdf#page=85&zoom=page-width",
-                claimIds: ["claim-5"]
-            },
-            "pdf-comment-bad-code": {
-                id: "pdf-comment-bad-code",
-                type: "pdf",
-                label: "PDF p86",
-                title: "Comments Do Not Make Up for Bad Code / Explain Yourself in Code",
-                location: "Clean_Code.pdf:p86",
-                excerpt: "更好的做法是让代码自己解释自己，而不是依赖注释去补救。",
-                page: 86,
-                url: "Clean_Code.pdf#page=86&zoom=page-width",
-                claimIds: ["claim-5"]
-            },
-            "pdf-redundant-comment": {
-                id: "pdf-redundant-comment",
-                type: "pdf",
-                label: "PDF p91",
-                title: "Redundant Comments",
-                location: "Clean_Code.pdf:p91",
-                excerpt: "冗余注释重复了代码已经表达的信息，会制造维护噪声。",
-                page: 91,
-                url: "Clean_Code.pdf#page=91&zoom=page-width",
-                claimIds: ["claim-5"]
-            },
-            "pdf-reason-to-change": {
-                id: "pdf-reason-to-change",
-                type: "pdf",
-                label: "PDF p169",
-                title: "Single Reason to Change",
-                location: "Clean_Code.pdf:p169",
-                excerpt: "“and only one, reason to change.” 类和模块应尽量只承载一个变化原因。",
-                page: 169,
-                url: "Clean_Code.pdf#page=169&zoom=page-width",
-                claimIds: ["claim-6"]
-            },
-            "pdf-single-reason-collaboration": {
-                id: "pdf-single-reason-collaboration",
-                type: "pdf",
-                label: "PDF p171",
-                title: "Single reason to change and collaboration",
-                location: "Clean_Code.pdf:p171",
-                excerpt: "单一职责的类应只保留一个变化理由，并与少量其他类协作完成整体目标。",
-                page: 171,
-                url: "Clean_Code.pdf#page=171&zoom=page-width",
-                claimIds: ["claim-6"]
-            }
-        };
-
-        const claims = [
-            {
-                id: "claim-1",
-                index: "规约 1",
-                principle: "函数只做一件事",
-                title: "complete() 职责过多",
-                detail: "在一个方法里同时完成前置钩子、完成当前任务、构造下一任务、创建下一任务、后置钩子，已经不是单一动作，而是一个小流程。",
-                sourceIds: ["pdf-do-one-thing", "pdf-one-abstraction", "code-complete"]
-            },
-            {
-                id: "claim-2",
-                index: "规约 2",
-                principle: "统一抽象层次",
-                title: "complete() 混杂高层编排和底层细节",
-                detail: "同一层里既有模板方法式的高层编排，又直接落到 task 创建和 service 调用，阅读时会在抽象层之间频繁跳转。",
-                sourceIds: ["pdf-one-abstraction", "pdf-stepdown", "code-complete"]
-            },
-            {
-                id: "claim-3",
-                index: "规约 3",
-                principle: "命名应表意且不误导",
-                title: "doHandler / createNextTaskInfo / getTaskAssignRoleCode 命名不够干净",
-                detail: "名字没有准确传达行为意图，甚至出现 roleCode 写入 nodeCode 的含义错位，违背了意图导向命名和避免误导的原则。",
-                sourceIds: ["pdf-naming-big-questions", "pdf-avoid-disinformation", "code-handler", "code-role-code", "code-create-next-task"]
-            },
-            {
-                id: "claim-4",
-                index: "规约 4",
-                principle: "避免魔法值",
-                title: "status(0) 缺乏业务语义",
-                detail: "把 `0` 直接写入状态字段，会让阅读者无法区分它是“待处理”“初始态”还是其他语义。",
-                sourceIds: ["pdf-magic-number", "code-magic-number"]
-            },
-            {
-                id: "claim-5",
-                index: "规约 5",
-                principle: "让代码解释自己",
-                title: "Default implementation 是冗余注释",
-                detail: "空实现本身已经表达了“默认什么也不做”，再补一行同义注释只会增加噪声，不能提升理解。",
-                sourceIds: ["pdf-comment-failure", "pdf-comment-bad-code", "pdf-redundant-comment", "code-handler"]
-            },
-            {
-                id: "claim-6",
-                index: "规约 6",
-                principle: "类应尽量只有一个变化原因",
-                title: "AbstractTaskEngine 类职责边界偏宽",
-                detail: "这个抽象类不只定义模板流程，还负责下一任务实体构建和分配字段填充，未来多个变化点都会落到这里。",
-                sourceIds: ["pdf-reason-to-change", "pdf-single-reason-collaboration", "code-class-scope"]
-            }
-        ];
-
         const state = {
-            selectedClaimId: claims[0].id,
-            selectedSourceId: "pdf-do-one-thing"
+            schema: null,
+            selectedFindingId: null,
+            selectedEvidenceId: null,
+            activeGroupId: "all"
         };
 
+        const heroTitleEl = document.getElementById("heroTitle");
+        const heroDescriptionEl = document.getElementById("heroDescription");
+        const heroPillsEl = document.getElementById("heroPills");
+        const summaryTitleEl = document.getElementById("summaryTitle");
+        const summaryTextEl = document.getElementById("summaryText");
+        const coverageListEl = document.getElementById("coverageList");
+        const groupListEl = document.getElementById("groupList");
         const claimListEl = document.getElementById("claimList");
         const sourceListEl = document.getElementById("sourceList");
-        const codeViewEl = document.getElementById("codeView");
-        const claimTitleEl = document.getElementById("claimTitle");
-        const claimDescriptionEl = document.getElementById("claimDescription");
         const metaClaimEl = document.getElementById("metaClaim");
         const metaSourceCountEl = document.getElementById("metaSourceCount");
+        const claimTitleEl = document.getElementById("claimTitle");
+        const claimDescriptionEl = document.getElementById("claimDescription");
         const selectedTitleEl = document.getElementById("selectedTitle");
         const selectedMetaEl = document.getElementById("selectedMeta");
         const selectedExcerptEl = document.getElementById("selectedExcerpt");
@@ -992,141 +669,245 @@ public abstract class AbstractTaskEngine implements TaskEngine {
         const pdfActionEl = document.getElementById("pdfAction");
         const codeActionEl = document.getElementById("codeAction");
         const codeFocusLabelEl = document.getElementById("codeFocusLabel");
+        const codeViewEl = document.getElementById("codeView");
         const crossSummaryEl = document.getElementById("crossSummary");
         const crossClaimsEl = document.getElementById("crossClaims");
         const relatedSourcesEl = document.getElementById("relatedSources");
 
-        function getClaimById(claimId) {
-            return claims.find((item) => item.id === claimId);
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
-        function getSourceById(sourceId) {
-            return sources[sourceId];
+        function getMapById(items) {
+            return Object.fromEntries(items.map((item) => [item.id, item]));
         }
 
-        function sourceKindClass(type) {
-            return type === "pdf" ? "kind-pdf" : "kind-code";
+        function severityClass(severity) {
+            return `severity-${severity || "low"}`;
         }
 
-        function renderCodeView() {
-            const lines = codeText.split("\n");
-            const fragment = document.createDocumentFragment();
+        function kindClass(anchorKind) {
+            return anchorKind.startsWith("pdf") ? "kind-pdf" : "kind-code";
+        }
 
-            lines.forEach((text, index) => {
-                const lineNo = index + 1;
-                const row = document.createElement("div");
-                row.className = "code-line";
-                row.dataset.line = String(lineNo);
+        function kindLabel(anchorKind) {
+            return anchorKind.startsWith("pdf") ? "PDF" : "CODE";
+        }
 
-                const number = document.createElement("div");
-                number.className = "line-number";
-                number.textContent = String(lineNo).padStart(2, " ");
+        function getFindingById(id) {
+            return state.schemaMaps.findings[id];
+        }
 
-                const content = document.createElement("div");
-                content.className = "line-text";
-                content.textContent = text || " ";
+        function getConceptById(id) {
+            return state.schemaMaps.concepts[id];
+        }
 
-                row.appendChild(number);
-                row.appendChild(content);
-                fragment.appendChild(row);
+        function getAnchorById(id) {
+            return state.schemaMaps.anchors[id];
+        }
+
+        function getDocumentById(id) {
+            return state.schemaMaps.documents[id];
+        }
+
+        function getEvidenceById(id) {
+            return state.schemaMaps.evidenceLinks[id];
+        }
+
+        function getEvidenceForFinding(findingId) {
+            return state.schema.evidence_links.filter((item) => item.finding_id === findingId);
+        }
+
+        function getFindingOrder() {
+            const order = state.schema.ui_indexes.default_finding_order;
+            if (state.activeGroupId === "all") {
+                return order;
+            }
+            const group = state.schema.ui_indexes.finding_groups.find((item) => item.id === state.activeGroupId);
+            return group ? group.finding_ids : order;
+        }
+
+        function getDisplayLocation(anchor) {
+            if (anchor.kind === "code_span") {
+                return `${anchor.locator.file_path.split("\\").pop()}:L${anchor.locator.line_start}-L${anchor.locator.line_end}`;
+            }
+            return `Clean_Code.pdf:p${anchor.locator.page}`;
+        }
+
+        function getPrimaryConceptName(finding) {
+            const concept = finding.concept_ids.length ? getConceptById(finding.concept_ids[0]) : null;
+            return concept ? concept.name : "未分组概念";
+        }
+
+        function getRepresentativeEvidence(finding) {
+            const ids = new Set(finding.representative_evidence_ids);
+            const evidences = getEvidenceForFinding(finding.id).filter((item) => ids.has(item.id));
+            return evidences.length ? evidences : getEvidenceForFinding(finding.id).slice(0, 2);
+        }
+
+        function renderHero() {
+            const hero = state.schema.ui_indexes.hero;
+            heroTitleEl.textContent = hero.title;
+            heroDescriptionEl.textContent = hero.description;
+            heroPillsEl.innerHTML = hero.pills.map((pill) => `<div class="pill">${escapeHtml(pill)}</div>`).join("");
+        }
+
+        function renderSummary() {
+            const summary = state.schema.ui_indexes.summary;
+            summaryTitleEl.textContent = summary.title;
+            summaryTextEl.textContent = summary.text;
+            coverageListEl.innerHTML = state.schema.ui_indexes.book_coverage.map((item) => {
+                const concept = getConceptById(item.concept_id);
+                return `<div class="coverage-pill">${escapeHtml(concept.name)} · ${item.match_count} 处 · p${item.matched_pages.join(", p")}</div>`;
+            }).join("");
+        }
+
+        function renderGroups() {
+            const groups = state.schema.ui_indexes.finding_groups;
+            const allCount = state.schema.ui_indexes.default_finding_order.length;
+            const groupButtons = [
+                `<button type="button" class="group-pill ${state.activeGroupId === "all" ? "active" : ""}" data-group-id="all">全部结论 · ${allCount}</button>`,
+                ...groups.map((group) => `<button type="button" class="group-pill ${state.activeGroupId === group.id ? "active" : ""}" data-group-id="${group.id}">${escapeHtml(group.title)} · ${group.finding_ids.length}</button>`)
+            ];
+            groupListEl.innerHTML = groupButtons.join("");
+            groupListEl.querySelectorAll(".group-pill").forEach((button) => {
+                button.addEventListener("click", () => {
+                    state.activeGroupId = button.dataset.groupId;
+                    renderGroups();
+                    renderFindings();
+                });
             });
-
-            codeViewEl.appendChild(fragment);
         }
 
-        function renderClaims() {
-            claimListEl.innerHTML = "";
+        function renderFindings() {
+            const order = getFindingOrder();
+            if (!order.length) {
+                claimListEl.innerHTML = '<div class="loading">当前分组下没有 finding。</div>';
+                return;
+            }
 
-            claims.forEach((claim) => {
-                const card = document.createElement("article");
-                card.className = "claim-card";
-                card.dataset.claimId = claim.id;
+            const groupName = state.activeGroupId === "all"
+                ? "全部结论"
+                : state.schema.ui_indexes.finding_groups.find((item) => item.id === state.activeGroupId).title;
 
-                const chipsHtml = claim.sourceIds.map((sourceId) => {
-                    const source = getSourceById(sourceId);
+            const cards = order.map((findingId, index) => {
+                const finding = getFindingById(findingId);
+                const conceptName = getPrimaryConceptName(finding);
+                const evidences = getRepresentativeEvidence(finding);
+                const chips = evidences.map((evidence) => {
+                    const anchor = getAnchorById(evidence.anchor_id);
+                    const score = Math.round(evidence.score * 100);
                     return `
                         <button
                             type="button"
-                            class="citation-chip"
-                            data-claim-id="${claim.id}"
-                            data-source-id="${source.id}"
-                            title="${source.excerpt}">
-                            <span class="citation-kind ${sourceKindClass(source.type)}">${source.type.toUpperCase()}</span>
-                            <span>${source.label}</span>
+                            class="citation-chip ${state.selectedEvidenceId === evidence.id ? "active" : ""}"
+                            data-finding-id="${finding.id}"
+                            data-evidence-id="${evidence.id}"
+                            title="${escapeHtml(evidence.rationale)}">
+                            <span class="citation-kind ${kindClass(anchor.kind)}">${kindLabel(anchor.kind)}</span>
+                            <span>${anchor.kind.startsWith("pdf") ? `p${anchor.locator.page}` : `L${anchor.locator.line_start}-L${anchor.locator.line_end}`}</span>
+                            <span>${score}%</span>
                         </button>
                     `;
                 }).join("");
 
-                card.innerHTML = `
-                    <div class="claim-head">
-                        <span class="claim-index">${claim.index}</span>
-                        <span class="claim-principle">${claim.principle}</span>
-                    </div>
-                    <h3>${claim.title}</h3>
-                    <p>${claim.detail}</p>
-                    <div class="citations">${chipsHtml}</div>
+                return `
+                    <article class="claim-card ${state.selectedFindingId === finding.id ? "active" : ""}" data-finding-id="${finding.id}">
+                        <div class="claim-head">
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <span class="claim-index">结论 ${index + 1}</span>
+                                <span class="claim-principle">${escapeHtml(conceptName)}</span>
+                            </div>
+                            <span class="severity-badge ${severityClass(finding.severity)}">${escapeHtml(finding.severity)}</span>
+                        </div>
+                        <h3>${escapeHtml(finding.title)}</h3>
+                        <p>${escapeHtml(finding.summary)}</p>
+                        <div class="citations">${chips}</div>
+                    </article>
                 `;
+            }).join("");
 
+            claimListEl.innerHTML = `
+                <div class="group-block">
+                    <p class="group-heading">当前筛选：${escapeHtml(groupName)}</p>
+                    ${cards}
+                </div>
+            `;
+
+            claimListEl.querySelectorAll(".claim-card").forEach((card) => {
                 card.addEventListener("click", (event) => {
                     if (event.target.closest(".citation-chip")) {
                         return;
                     }
-                    const firstSourceId = claim.sourceIds[0];
-                    selectClaim(claim.id, firstSourceId);
-                });
-
-                claimListEl.appendChild(card);
-            });
-
-            claimListEl.querySelectorAll(".citation-chip").forEach((button) => {
-                button.addEventListener("click", () => {
-                    selectClaim(button.dataset.claimId, button.dataset.sourceId);
+                    const finding = getFindingById(card.dataset.findingId);
+                    const evidenceId = finding.representative_evidence_ids[0] || getEvidenceForFinding(finding.id)[0].id;
+                    selectFinding(finding.id, evidenceId);
                 });
             });
+
+            claimListEl.querySelectorAll(".citation-chip").forEach((chip) => {
+                chip.addEventListener("click", () => {
+                    selectFinding(chip.dataset.findingId, chip.dataset.evidenceId);
+                });
+            });
+        }
+
+        function renderCodeView() {
+            const codeDocument = state.schema.documents.find((item) => item.kind === "code");
+            const lines = codeDocument.content.split("\n");
+            codeViewEl.innerHTML = lines.map((text, index) => `
+                <div class="code-line" data-line="${index + 1}">
+                    <div class="line-number">${String(index + 1).padStart(2, " ")}</div>
+                    <div class="line-text">${escapeHtml(text || " ")}</div>
+                </div>
+            `).join("");
+        }
+
+        function updateClaimMeta() {
+            const finding = getFindingById(state.selectedFindingId);
+            const evidences = getEvidenceForFinding(finding.id);
+            metaClaimEl.textContent = `当前结论：${finding.title}`;
+            metaSourceCountEl.textContent = `证据数：${evidences.length}`;
+            claimTitleEl.textContent = finding.title;
+            claimDescriptionEl.textContent = finding.summary;
         }
 
         function renderSourceList() {
-            const claim = getClaimById(state.selectedClaimId);
-            sourceListEl.innerHTML = "";
-            claimTitleEl.textContent = claim.title;
-            claimDescriptionEl.textContent = claim.detail;
-            metaClaimEl.textContent = `当前结论：${claim.index}`;
-            metaSourceCountEl.textContent = `证据数：${claim.sourceIds.length}`;
-
-            claim.sourceIds.forEach((sourceId) => {
-                const source = getSourceById(sourceId);
-                const item = document.createElement("button");
-                item.type = "button";
-                item.className = "source-item";
-                item.dataset.sourceId = source.id;
-                item.innerHTML = `
-                    <div class="source-top">
-                        <div>
-                            <h4 class="source-title">${source.title}</h4>
-                            <p class="source-location">${source.location}</p>
+            const finding = getFindingById(state.selectedFindingId);
+            const evidences = getEvidenceForFinding(finding.id).sort((a, b) => b.importance_score - a.importance_score);
+            sourceListEl.innerHTML = evidences.map((evidence) => {
+                const anchor = getAnchorById(evidence.anchor_id);
+                const document = getDocumentById(anchor.document_id);
+                const relation = evidence.relation === "supported_by_book" ? "书中依据" : "代码观察";
+                return `
+                    <button type="button" class="source-item ${state.selectedEvidenceId === evidence.id ? "active" : ""}" data-evidence-id="${evidence.id}">
+                        <div class="source-top">
+                            <div>
+                                <h4 class="source-title">${escapeHtml(anchor.quote || document.title)}</h4>
+                                <p class="source-location">${escapeHtml(getDisplayLocation(anchor))}</p>
+                            </div>
+                            <span class="source-kind ${kindClass(anchor.kind)}">${kindLabel(anchor.kind)}</span>
                         </div>
-                        <span class="source-kind ${sourceKindClass(source.type)}">${source.type.toUpperCase()}</span>
-                    </div>
-                    <p>${source.excerpt}</p>
+                        <p>${escapeHtml(evidence.rationale)}</p>
+                        <div class="source-meta">
+                            <span class="meta-tag">${escapeHtml(relation)}</span>
+                            <span class="meta-tag">score ${Math.round(evidence.score * 100)}%</span>
+                            <span class="meta-tag">importance ${Math.round(evidence.importance_score * 100)}%</span>
+                            <span class="meta-tag">${evidence.representative ? "代表证据" : "补充证据"}</span>
+                        </div>
+                    </button>
                 `;
+            }).join("");
+
+            sourceListEl.querySelectorAll(".source-item").forEach((item) => {
                 item.addEventListener("click", () => {
-                    selectClaim(claim.id, source.id);
+                    selectFinding(finding.id, item.dataset.evidenceId);
                 });
-                sourceListEl.appendChild(item);
-            });
-        }
-
-        function updateClaimActiveState() {
-            document.querySelectorAll(".claim-card").forEach((card) => {
-                card.classList.toggle("active", card.dataset.claimId === state.selectedClaimId);
-            });
-
-            document.querySelectorAll(".citation-chip").forEach((chip) => {
-                chip.classList.toggle("active", chip.dataset.sourceId === state.selectedSourceId);
-            });
-
-            document.querySelectorAll(".source-item").forEach((item) => {
-                item.classList.toggle("active", item.dataset.sourceId === state.selectedSourceId);
             });
         }
 
@@ -1136,119 +917,173 @@ public abstract class AbstractTaskEngine implements TaskEngine {
             });
         }
 
-        function highlightCode(source) {
+        function highlightCodeAnchor(anchor) {
             clearCodeHighlight();
-            if (source.type !== "code") {
-                const fallbackCode = sources[getClaimById(state.selectedClaimId).sourceIds.find((id) => sources[id].type === "code")];
-                if (!fallbackCode) {
-                    codeFocusLabelEl.textContent = "代码定位：当前结论无代码证据";
+            if (!anchor || anchor.kind !== "code_span") {
+                codeFocusLabelEl.textContent = "代码定位：当前证据未直接命中代码，已回退到本 finding 的主代码锚点";
+                const finding = getFindingById(state.selectedFindingId);
+                const fallbackAnchorId = finding.primary_code_anchor_ids[0];
+                if (!fallbackAnchorId) {
                     return;
                 }
-                highlightCode(fallbackCode);
-                return;
+                return highlightCodeAnchor(getAnchorById(fallbackAnchorId));
             }
 
-            codeFocusLabelEl.textContent = `代码定位：${source.location}`;
-            for (let line = source.startLine; line <= source.endLine; line += 1) {
+            codeFocusLabelEl.textContent = `代码定位：${getDisplayLocation(anchor)}`;
+            for (let line = anchor.locator.line_start; line <= anchor.locator.line_end; line += 1) {
                 const row = codeViewEl.querySelector(`.code-line[data-line="${line}"]`);
                 if (row) {
                     row.classList.add("highlight");
                 }
             }
 
-            const firstRow = codeViewEl.querySelector(`.code-line[data-line="${source.startLine}"]`);
+            const firstRow = codeViewEl.querySelector(`.code-line[data-line="${anchor.locator.line_start}"]`);
             if (firstRow) {
                 firstRow.scrollIntoView({ behavior: "smooth", block: "center" });
             }
         }
 
-        function resolvePdfSource(source) {
-            if (source.type === "pdf") {
-                return source;
+        function resolvePdfAnchor(evidenceAnchor) {
+            if (evidenceAnchor.kind === "pdf_span") {
+                return evidenceAnchor;
             }
 
-            if (source.relatedPdfId) {
-                return getSourceById(source.relatedPdfId);
-            }
-
-            const claim = getClaimById(state.selectedClaimId);
-            const pdfId = claim.sourceIds.find((id) => sources[id].type === "pdf");
-            return pdfId ? getSourceById(pdfId) : null;
+            const finding = getFindingById(state.selectedFindingId);
+            const fallbackPdfAnchorId = finding.primary_pdf_anchor_ids[0];
+            return fallbackPdfAnchorId ? getAnchorById(fallbackPdfAnchorId) : null;
         }
 
-        function renderCrossReferences(currentSource) {
-            const claim = getClaimById(state.selectedClaimId);
-            crossClaimsEl.innerHTML = "";
-            relatedSourcesEl.innerHTML = "";
+        function renderCrossReferences() {
+            const finding = getFindingById(state.selectedFindingId);
+            const evidence = getEvidenceById(state.selectedEvidenceId);
+            const concepts = finding.concept_ids.map((id) => getConceptById(id));
+            const relatedFindingRefs = state.schema.cross_refs.filter((item) => item.from_type === "finding" && item.from_id === finding.id);
+            const sameFindingEvidence = getEvidenceForFinding(finding.id).filter((item) => item.id !== evidence.id);
 
-            crossSummaryEl.textContent = `当前证据属于“${claim.title}”。下面列出同一条结论下的关联来源，支持在教材页码和代码片段之间横向切换。`;
+            crossSummaryEl.textContent = `当前证据属于“${finding.title}”，概念簇为 ${concepts.map((item) => item.name).join(" / ")}。`;
 
-            const claimButton = document.createElement("button");
-            claimButton.type = "button";
-            claimButton.className = "cross-link active";
-            claimButton.textContent = `${claim.index} · ${claim.principle}`;
-            claimButton.addEventListener("click", () => {
-                const fallbackSource = claim.sourceIds[0];
-                selectClaim(claim.id, fallbackSource);
-            });
-            crossClaimsEl.appendChild(claimButton);
+            crossClaimsEl.innerHTML = relatedFindingRefs.length
+                ? relatedFindingRefs.map((ref) => {
+                    const target = getFindingById(ref.to_id);
+                    return `<button type="button" class="cross-link" data-related-finding-id="${target.id}">${escapeHtml(target.title)} · ${Math.round(ref.score * 100)}%</button>`;
+                }).join("")
+                : `<span class="meta-tag">暂无跨 finding 引用</span>`;
 
-            claim.sourceIds
-                .filter((sourceId) => sourceId !== currentSource.id)
-                .forEach((sourceId) => {
-                    const source = getSourceById(sourceId);
-                    const item = document.createElement("button");
-                    item.type = "button";
-                    item.className = "cross-link";
-                    item.textContent = `${source.label} · ${source.title}`;
-                    item.title = source.excerpt;
-                    item.addEventListener("click", () => {
-                        selectClaim(claim.id, source.id);
-                    });
-                    relatedSourcesEl.appendChild(item);
+            relatedSourcesEl.innerHTML = sameFindingEvidence.length
+                ? sameFindingEvidence.map((item) => {
+                    const anchor = getAnchorById(item.anchor_id);
+                    const label = anchor.kind === "pdf_span"
+                        ? `PDF p${anchor.locator.page}`
+                        : `Code L${anchor.locator.line_start}-L${anchor.locator.line_end}`;
+                    return `<button type="button" class="cross-link" data-related-evidence-id="${item.id}">${escapeHtml(label)} · ${Math.round(item.score * 100)}%</button>`;
+                }).join("")
+                : `<span class="meta-tag">当前是唯一证据</span>`;
+
+            crossClaimsEl.querySelectorAll("[data-related-finding-id]").forEach((button) => {
+                button.addEventListener("click", () => {
+                    const target = getFindingById(button.dataset.relatedFindingId);
+                    const evidenceId = target.representative_evidence_ids[0] || getEvidenceForFinding(target.id)[0].id;
+                    selectFinding(target.id, evidenceId);
                 });
+            });
+
+            relatedSourcesEl.querySelectorAll("[data-related-evidence-id]").forEach((button) => {
+                button.addEventListener("click", () => {
+                    selectFinding(finding.id, button.dataset.relatedEvidenceId);
+                });
+            });
         }
 
         function updatePreview() {
-            const claim = getClaimById(state.selectedClaimId);
-            const source = getSourceById(state.selectedSourceId);
-            const pdfSource = resolvePdfSource(source);
+            const finding = getFindingById(state.selectedFindingId);
+            const evidence = getEvidenceById(state.selectedEvidenceId);
+            const anchor = getAnchorById(evidence.anchor_id);
+            const pdfAnchor = resolvePdfAnchor(anchor);
+            const document = getDocumentById(anchor.document_id);
 
-            selectedTitleEl.textContent = source.title;
-            selectedMetaEl.textContent = `${source.location} · 绑定结论：${claim.title}`;
-            selectedExcerptEl.textContent = source.excerpt;
+            selectedTitleEl.textContent = anchor.quote || document.title;
+            selectedMetaEl.textContent = `${getDisplayLocation(anchor)} · relation: ${evidence.relation}`;
+            selectedExcerptEl.textContent = evidence.rationale;
 
-            if (pdfSource) {
-                selectedPdfHintEl.textContent = `当前联动到 ${pdfSource.location}，你可以在浏览器 PDF 阅读器里继续放大或翻页。`;
-                pdfFrameEl.src = pdfSource.url;
-                pdfActionEl.href = pdfSource.url;
-                pdfActionEl.textContent = `打开 ${pdfSource.label}`;
+            if (pdfAnchor) {
+                selectedPdfHintEl.textContent = `当前联动到 ${getDisplayLocation(pdfAnchor)}，可继续在浏览器 PDF 阅读器中放大或翻页。`;
+                pdfFrameEl.src = pdfAnchor.deep_link;
+                pdfActionEl.href = pdfAnchor.deep_link;
+                pdfActionEl.textContent = `打开 PDF p${pdfAnchor.locator.page}`;
             } else {
-                selectedPdfHintEl.textContent = "当前证据没有对应的 PDF 片段。";
+                selectedPdfHintEl.textContent = "当前 finding 没有关联 PDF 锚点。";
                 pdfActionEl.href = "Clean_Code.pdf#page=1";
                 pdfActionEl.textContent = "打开 PDF 页面";
             }
 
-            highlightCode(source);
-            renderCrossReferences(source);
+            highlightCodeAnchor(anchor);
+            renderCrossReferences();
         }
 
-        function selectClaim(claimId, sourceId) {
-            state.selectedClaimId = claimId;
-            state.selectedSourceId = sourceId;
+        function selectFinding(findingId, evidenceId) {
+            state.selectedFindingId = findingId;
+            state.selectedEvidenceId = evidenceId;
+            renderGroups();
+            renderFindings();
+            updateClaimMeta();
             renderSourceList();
-            updateClaimActiveState();
             updatePreview();
         }
 
+        function initializeSchemaMaps(schema) {
+            state.schema = schema;
+            state.schemaMaps = {
+                documents: getMapById(schema.documents),
+                anchors: getMapById(schema.anchors),
+                concepts: getMapById(schema.concepts),
+                findings: getMapById(schema.findings),
+                evidenceLinks: getMapById(schema.evidence_links)
+            };
+        }
+
+        function showError(message) {
+            claimListEl.innerHTML = `
+                <div class="error-card">
+                    <h2>加载失败</h2>
+                    <p>${escapeHtml(message)}</p>
+                </div>
+            `;
+        }
+
+        async function bootstrap() {
+            try {
+                const response = await fetch("./schema-template.json", { cache: "no-store" });
+                if (!response.ok) {
+                    throw new Error(`schema-template.json 加载失败，HTTP ${response.status}`);
+                }
+                const schema = await response.json();
+                initializeSchemaMaps(schema);
+                renderHero();
+                renderSummary();
+                renderCodeView();
+
+                const defaults = schema.ui_indexes.default_selected;
+                state.selectedFindingId = defaults.finding_id;
+                state.selectedEvidenceId = defaults.evidence_id;
+
+                renderGroups();
+                renderFindings();
+                updateClaimMeta();
+                renderSourceList();
+                updatePreview();
+            } catch (error) {
+                showError(error.message || "未知错误");
+                heroDescriptionEl.textContent = "schema 加载失败，无法展示 mapping 结果。";
+            }
+        }
+
         codeActionEl.addEventListener("click", () => {
-            const source = getSourceById(state.selectedSourceId);
-            highlightCode(source);
+            const evidence = getEvidenceById(state.selectedEvidenceId);
+            const anchor = getAnchorById(evidence.anchor_id);
+            highlightCodeAnchor(anchor);
         });
 
-        renderCodeView();
-        renderClaims();
-        selectClaim(state.selectedClaimId, state.selectedSourceId);
+        bootstrap();
     </script>
 </body>
 </html>
