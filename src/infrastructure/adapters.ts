@@ -61,6 +61,7 @@ export interface PdfReaderMcpClientPort {
     maxMatchesPerSource?: number;
     contextChars?: number;
   }): Promise<PdfReaderSearchResponse>;
+  close(): Promise<void>;
 }
 
 const BOOK_EVIDENCE_BY_CATEGORY: Record<string, BookEvidenceTemplate> = {
@@ -515,6 +516,14 @@ export class ExternalPdfReaderMcpClient implements PdfReaderMcpClientPort {
     }
   }
 
+  async close(): Promise<void> {
+    this.client = null;
+    if (this.transport) {
+      await this.transport.close();
+      this.transport = null;
+    }
+  }
+
   private async getClient(): Promise<Client> {
     if (this.client) {
       return this.client;
@@ -663,13 +672,13 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       severity: "high" | "medium" | "low";
       conceptId: string;
       primaryCodeAnchorIds: string[];
-      primaryPdfAnchorIds: string[];
       tags: string[];
     }): void => {
       const observation = input.observations.find((item) => item.category === config.observationCategory);
       if (!observation) {
         return;
       }
+      const actualPdfAnchors = evidenceByCategory.get(observation.category) ?? [];
 
       const finding: MappingFinding = {
         id: config.id,
@@ -679,7 +688,7 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
         confidence: observation.confidence,
         concept_ids: [config.conceptId],
         primary_code_anchor_ids: config.primaryCodeAnchorIds,
-        primary_pdf_anchor_ids: config.primaryPdfAnchorIds,
+        primary_pdf_anchor_ids: actualPdfAnchors.length ? [actualPdfAnchors[0].id] : [],
         tags: config.tags,
         representative_evidence_ids: []
       };
@@ -729,7 +738,6 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       severity: "high",
       conceptId: "concept-function-design",
       primaryCodeAnchorIds: ["anchor-code-complete-method"],
-      primaryPdfAnchorIds: ["anchor-pdf-p66"],
       tags: ["职责过多", "流程编排"]
     });
 
@@ -741,7 +749,6 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       severity: "high",
       conceptId: "concept-function-design",
       primaryCodeAnchorIds: ["anchor-code-complete-method"],
-      primaryPdfAnchorIds: ["anchor-pdf-p67"],
       tags: ["抽象层次", "stepdown"]
     });
 
@@ -753,7 +760,6 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       severity: "medium",
       conceptId: "concept-naming",
       primaryCodeAnchorIds: ["anchor-code-handler", "anchor-code-role-code", "anchor-code-create-next-task"],
-      primaryPdfAnchorIds: ["anchor-pdf-p49"],
       tags: ["命名", "误导语义"]
     });
 
@@ -765,7 +771,6 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       severity: "medium",
       conceptId: "concept-constants",
       primaryCodeAnchorIds: ["anchor-code-magic-number"],
-      primaryPdfAnchorIds: ["anchor-pdf-p331"],
       tags: ["魔法值", "可读性"]
     });
 
@@ -777,7 +782,6 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       severity: "low",
       conceptId: "concept-comments",
       primaryCodeAnchorIds: ["anchor-code-handler"],
-      primaryPdfAnchorIds: ["anchor-pdf-p85"],
       tags: ["注释", "自解释代码"]
     });
 
@@ -789,7 +793,6 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       severity: "medium",
       conceptId: "concept-class-responsibility",
       primaryCodeAnchorIds: ["anchor-code-class-scope"],
-      primaryPdfAnchorIds: ["anchor-pdf-p169"],
       tags: ["类设计", "变化原因"]
     });
 

@@ -63,3 +63,7 @@ export interface LlmSynthesisPort {
 export interface MappingSchemaValidatorPort {
   validate(result: MappingSchema): Promise<ValidationResult>;
 }
+
+export interface DisposablePort {
+  close(): Promise<void>;
+}

@@ -34,6 +34,7 @@ export interface Application {
   createMappingJob: CreateMappingJobUseCase;
   getMappingJob: GetMappingJobUseCase;
   getMappingResult: GetMappingResultUseCase;
+  dispose(): Promise<void>;
 }
 
 export function createApplication(options?: {
@@ -54,9 +55,8 @@ export function createApplication(options?: {
   const parser = new SimpleJavaParserAdapter();
   const observationService = new HeuristicCodeObservationService();
   const staticRetriever = new StaticPdfCorpusRetrieverAdapter();
-  const mcpRetriever = new McpPdfCorpusRetrieverAdapter(
-    options?.pdfReaderClient ?? new ExternalPdfReaderMcpClient()
-  );
+  const pdfReaderClient = options?.pdfReaderClient ?? new ExternalPdfReaderMcpClient();
+  const mcpRetriever = new McpPdfCorpusRetrieverAdapter(pdfReaderClient);
   const retriever = hasLocalPdf(pdfPath)
     ? new HybridPdfCorpusRetrieverAdapter(mcpRetriever, staticRetriever)
     : staticRetriever;
@@ -86,6 +86,9 @@ export function createApplication(options?: {
       scheduler
     }),
     getMappingJob: new GetMappingJobUseCase(jobRepository),
-    getMappingResult: new GetMappingResultUseCase(jobRepository, resultRepository)
+    getMappingResult: new GetMappingResultUseCase(jobRepository, resultRepository),
+    async dispose() {
+      await pdfReaderClient.close();
+    }
   };
 }

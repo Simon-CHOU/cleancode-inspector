@@ -9,6 +9,8 @@ class FakePdfReaderMcpClient {
   async searchPdf(): Promise<{ results?: Array<{ success?: boolean; matches?: Array<Record<string, unknown>> }> }> {
     return this.response as { results?: Array<{ success?: boolean; matches?: Array<Record<string, unknown>> }> };
   }
+
+  async close(): Promise<void> {}
 }
 
 describe("pdf-reader retriever adapter", () => {
