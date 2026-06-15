@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createApplication } from "../../bootstrap/createApplication.js";
 import { DomainError } from "../../domain/errors.js";
 import { ABSTRACT_TASK_ENGINE_FIXTURE } from "../fixtures/abstractTaskEngineFixture.js";
+import { createAbstractTaskEngineLlmResponse, FakeLlmClient } from "../fixtures/fakeLlmClient.js";
 
 const tempDirs: string[] = [];
 
@@ -25,7 +26,10 @@ afterEach(() => {
 
 describe("application use cases", () => {
   it("creates queued jobs for valid java input", async () => {
-    const app = createApplication({ baseDir: createTempDir() });
+    const app = createApplication({
+      baseDir: createTempDir(),
+      llmClient: new FakeLlmClient(createAbstractTaskEngineLlmResponse())
+    });
 
     const created = await app.createMappingJob.execute({
       file_name: "AbstractTaskEngine.java",
@@ -39,7 +43,10 @@ describe("application use cases", () => {
   });
 
   it("reports result-not-ready before pipeline completion", async () => {
-    const app = createApplication({ baseDir: createTempDir() });
+    const app = createApplication({
+      baseDir: createTempDir(),
+      llmClient: new FakeLlmClient(createAbstractTaskEngineLlmResponse())
+    });
     const created = await app.createMappingJob.execute({
       file_name: "AbstractTaskEngine.java",
       language: "java",

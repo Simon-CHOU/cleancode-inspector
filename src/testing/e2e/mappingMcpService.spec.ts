@@ -11,6 +11,7 @@ import {
   ABSTRACT_TASK_ENGINE_FIXTURE,
   MINIMAL_JAVA_FIXTURE
 } from "../fixtures/abstractTaskEngineFixture.js";
+import { createAbstractTaskEngineLlmResponse, FakeLlmClient } from "../fixtures/fakeLlmClient.js";
 
 const tempDirs: string[] = [];
 
@@ -42,7 +43,10 @@ afterEach(() => {
 
 describe("mapping MCP service", () => {
   it("runs happy path and returns schema-compatible mapping result", async () => {
-    const app = createApplication({ baseDir: createTempDir() });
+    const app = createApplication({
+      baseDir: createTempDir(),
+      llmClient: new FakeLlmClient(createAbstractTaskEngineLlmResponse())
+    });
     const service = createMappingMcpService(app);
 
     const created = await service.mappingCreateJob({
@@ -63,7 +67,10 @@ describe("mapping MCP service", () => {
   }, 15000);
 
   it("returns partial result when no textbook evidence is retrieved", async () => {
-    const app = createApplication({ baseDir: createTempDir() });
+    const app = createApplication({
+      baseDir: createTempDir(),
+      llmClient: new FakeLlmClient(createAbstractTaskEngineLlmResponse())
+    });
     const service = createMappingMcpService(app);
 
     const created = await service.mappingCreateJob({

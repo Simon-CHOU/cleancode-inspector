@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { createApplication } from "../../bootstrap/createApplication.js";
+import { FakeLlmClient } from "../fixtures/fakeLlmClient.js";
 
 const tempDirs: string[] = [];
 
@@ -33,15 +34,18 @@ afterEach(() => {
 });
 
 describe("application lifecycle", () => {
-  it("closes external pdf-reader client on dispose", async () => {
-    const client = new FakeClosablePdfReaderClient();
+  it("closes external clients on dispose", async () => {
+    const pdfClient = new FakeClosablePdfReaderClient();
+    const llmClient = new FakeLlmClient(JSON.stringify({ findings: [], cross_refs: [] }));
     const app = createApplication({
       baseDir: createTempDir(),
-      pdfReaderClient: client
+      pdfReaderClient: pdfClient,
+      llmClient
     });
 
     await app.dispose();
 
-    expect(client.closed).toBe(true);
+    expect(pdfClient.closed).toBe(true);
+    expect(llmClient.closed).toBe(true);
   });
 });

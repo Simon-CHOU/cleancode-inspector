@@ -3,6 +3,7 @@ import { accessSync, constants as fsConstants } from "node:fs";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { z } from "zod";
 
 import type {
   CodeObservation,
@@ -62,6 +63,25 @@ export interface PdfReaderMcpClientPort {
     contextChars?: number;
   }): Promise<PdfReaderSearchResponse>;
   close(): Promise<void>;
+}
+
+export interface LlmChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+export interface LlmChatClientPort {
+  completeJson(input: {
+    messages: LlmChatMessage[];
+    temperature?: number;
+  }): Promise<string>;
+  close(): Promise<void>;
+}
+
+export interface DeepSeekLlmConfig {
+  apiKey: string;
+  baseUrl: string;
+  model: string;
 }
 
 const BOOK_EVIDENCE_BY_CATEGORY: Record<string, BookEvidenceTemplate> = {
@@ -159,6 +179,46 @@ const SEARCH_QUERY_BY_CATEGORY: Record<string, string[]> = {
   class_responsibility: ["reason to change", "single reason to change"]
 };
 
+const OBSERVATION_CATEGORY_VALUES = [
+  "function_design",
+  "abstraction_level",
+  "naming",
+  "magic_number",
+  "comments",
+  "class_responsibility"
+] as const;
+
+const nullableStringSchema = z.string().min(1).nullish().transform((value) => value ?? undefined);
+const nullableStringArraySchema = z.array(z.string()).nullish().transform((value) => value ?? []);
+
+const llmFindingSchema = z.object({
+  id: nullableStringSchema,
+  observation_category: z.union([
+    z.enum(OBSERVATION_CATEGORY_VALUES),
+    z.array(z.enum(OBSERVATION_CATEGORY_VALUES)).nonempty()
+  ]),
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  severity: z.enum(["high", "medium", "low"]),
+  concept_id: nullableStringSchema,
+  primary_code_anchor_ids: nullableStringArraySchema,
+  primary_pdf_anchor_ids: nullableStringArraySchema,
+  tags: nullableStringArraySchema
+});
+
+const llmCrossRefSchema = z.object({
+  from_finding_id: z.string().min(1),
+  to_finding_id: z.string().min(1),
+  relation: z.string().min(1),
+  score: z.coerce.number().min(0).max(1).default(0.75),
+  reason: z.string().min(1)
+});
+
+const llmSynthesisResponseSchema = z.object({
+  findings: z.array(llmFindingSchema).default([]),
+  cross_refs: z.array(llmCrossRefSchema).default([])
+});
+
 function pdfAnchor(id: string, page: number, quote: string): MappingAnchor {
   return {
     id,
@@ -197,6 +257,45 @@ function buildCodeAnchor(
     quote,
     confidence: 1
   };
+}
+
+function slugify(value: string): string {
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return normalized || "item";
+}
+
+function clampUnitScore(value: number): number {
+  if (Number.isNaN(value)) {
+    return 0;
+  }
+  return Math.min(1, Math.max(0, value));
+}
+
+function uniqueList(values: string[]): string[] {
+  return [...new Set(values.filter((value) => value.trim().length > 0))];
+}
+
+function extractJsonObject(text: string): string {
+  const trimmed = text.trim();
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    return trimmed;
+  }
+
+  const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fencedMatch?.[1]) {
+    return fencedMatch[1].trim();
+  }
+
+  const objectMatch = trimmed.match(/\{[\s\S]*\}/);
+  if (objectMatch) {
+    return objectMatch[0];
+  }
+
+  throw new Error("LLM response did not contain a JSON object");
 }
 
 function findLine(lines: string[], matcher: RegExp): number | null {
@@ -643,13 +742,249 @@ export function hasLocalPdf(path: string): boolean {
   }
 }
 
-export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
+export class ExternalDeepSeekChatClient implements LlmChatClientPort {
+  constructor(
+    private readonly config: DeepSeekLlmConfig,
+    private readonly fetchImpl: typeof fetch = globalThis.fetch.bind(globalThis)
+  ) {}
+
+  async completeJson(input: { messages: LlmChatMessage[]; temperature?: number }): Promise<string> {
+    const url = this.config.baseUrl.replace(/\/$/, "").endsWith("/chat/completions")
+      ? this.config.baseUrl.replace(/\/$/, "")
+      : `${this.config.baseUrl.replace(/\/$/, "")}/chat/completions`;
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.config.apiKey}`
+      },
+      body: JSON.stringify({
+        model: this.config.model,
+        messages: input.messages,
+        temperature: input.temperature ?? 0.1,
+        response_format: {
+          type: "json_object"
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`DeepSeek synthesis request failed: ${response.status} ${body}`);
+    }
+
+    const payload = (await response.json()) as {
+      choices?: Array<{
+        message?: {
+          content?: string | null;
+        };
+      }>;
+    };
+    const content = payload.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error("DeepSeek synthesis response did not contain message content");
+    }
+
+    return content;
+  }
+
+  async close(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+function buildDocuments(input: SynthesisInput): MappingSchema["documents"] {
+  return [
+    {
+      id: "doc-clean-code-pdf",
+      kind: "pdf",
+      title: "Clean Code",
+      path: "Clean_Code.pdf",
+      page_count: 462
+    },
+    {
+      id: "doc-submission",
+      kind: "code",
+      title: input.fileName,
+      path: input.fileName,
+      language: "java",
+      content: input.sourceCode
+    }
+  ];
+}
+
+function buildBookCoverage(
+  concepts: MappingConcept[],
+  findings: MappingFinding[],
+  evidenceLinks: MappingEvidenceLink[],
+  anchors: MappingAnchor[]
+): MappingSchema["ui_indexes"]["book_coverage"] {
+  const evidenceById = new Map(evidenceLinks.map((item) => [item.id, item]));
+  return concepts.map((concept) => {
+    const pages = findings
+      .filter((finding) => finding.concept_ids.includes(concept.id))
+      .flatMap((finding) => finding.representative_evidence_ids)
+      .map((evidenceId) => evidenceById.get(evidenceId))
+      .filter((item): item is MappingEvidenceLink => item !== undefined && item.relation === "supported_by_book")
+      .map((item) => anchors.find((anchor) => anchor.id === item.anchor_id))
+      .filter((anchor): anchor is MappingAnchor => Boolean(anchor))
+      .map((anchor) => anchor.locator.page ?? 0)
+      .filter((page) => page > 0);
+    const uniquePages = [...new Set(pages)];
+    return {
+      concept_id: concept.id,
+      matched_pages: uniquePages,
+      match_count: uniquePages.length
+    };
+  });
+}
+
+function buildSchema(input: {
+  synthesisInput: SynthesisInput;
+  anchors: MappingAnchor[];
+  concepts: MappingConcept[];
+  findings: MappingFinding[];
+  evidenceLinks: MappingEvidenceLink[];
+  crossRefs: MappingCrossRef[];
+}): MappingSchema {
+  const { synthesisInput, anchors, concepts, findings, evidenceLinks, crossRefs } = input;
+  return {
+    schema_version: "1.0.0",
+    task: {
+      id: `task-${synthesisInput.submissionId}`,
+      goal: "从单个 Java 文件映射到固定教材中的精准溯源结果",
+      created_at: new Date().toISOString(),
+      language: "zh-CN"
+    },
+    documents: buildDocuments(synthesisInput),
+    anchors,
+    concepts,
+    findings,
+    evidence_links: evidenceLinks,
+    cross_refs: crossRefs,
+    ui_indexes: {
+      default_finding_order: findings.map((item) => item.id),
+      finding_groups: buildFindingGroups(findings),
+      book_coverage: buildBookCoverage(concepts, findings, evidenceLinks, anchors),
+      default_selected: findings.length
+        ? {
+            finding_id: findings[0].id,
+            evidence_id: findings[0].representative_evidence_ids[0] ?? ""
+          }
+        : {
+            finding_id: "",
+            evidence_id: ""
+          },
+      hero: {
+        title: "精准溯源与交叉引用 Demo",
+        description: "MCP mapping server 生成的结构化结果，可直接交给 viewer 渲染。",
+        pills: [
+          `代码：${synthesisInput.fileName}`,
+          "教材：Clean_Code.pdf",
+          `状态：${findings.length ? "有命中" : "无命中"}`
+        ]
+      },
+      summary: {
+        title: "结论摘要",
+        text: findings.length
+          ? `本次映射共生成 ${findings.length} 条 finding，均来自代码观察、教材证据与 LLM synthesis。`
+          : "本次映射没有找到足够的教材证据，因此返回 partial 结果。"
+      }
+    }
+  };
+}
+
+function buildSynthesisMessages(input: {
+  model: string;
+  observations: CodeObservation[];
+  evidenceCandidates: RetrievedEvidenceCandidate[];
+  codeAnchors: MappingAnchor[];
+  concepts: MappingConcept[];
+}): LlmChatMessage[] {
+  const promptPayload = {
+    model: input.model,
+    instructions: {
+      role: "你是一个代码审查与教材对齐助手。",
+      goal: "根据代码观察与教材证据，输出高质量 findings，并选择最合适的主代码锚点和主 PDF 锚点。",
+      constraints: [
+        "只输出 JSON，不要输出 Markdown。",
+        "只能引用输入中提供的 observation_category、concept_id、anchor_id。",
+        "不要编造不存在的页码、锚点或概念。",
+        "优先使用正文强证据，避免目录页和索引页作为 primary_pdf_anchor_ids。",
+        "finding summary 要简洁、可读，适合直接在 UI 中展示。"
+      ],
+      output_contract: {
+        findings: [
+          {
+            id: "string, optional",
+            observation_category: OBSERVATION_CATEGORY_VALUES,
+            title: "string",
+            summary: "string",
+            severity: "high | medium | low",
+            concept_id: "string, optional",
+            primary_code_anchor_ids: ["string"],
+            primary_pdf_anchor_ids: ["string"],
+            tags: ["string"]
+          }
+        ],
+        cross_refs: [
+          {
+            from_finding_id: "string",
+            to_finding_id: "string",
+            relation: "string",
+            score: "0..1",
+            reason: "string"
+          }
+        ]
+      }
+    },
+    concepts: input.concepts,
+    observations: input.observations.map((item) => ({
+      observation_id: item.observation_id,
+      category: item.category,
+      summary: item.summary,
+      confidence: item.confidence,
+      code_anchor_ids: item.code_anchor_ids
+    })),
+    code_anchors: input.codeAnchors.map((item) => ({
+      id: item.id,
+      quote: item.quote,
+      locator: item.locator
+    })),
+    evidence_candidates: input.evidenceCandidates.map((item) => ({
+      observation_id: item.observation_id,
+      category: item.category,
+      anchors: item.anchors.map((anchor) => ({
+        id: anchor.id,
+        page: anchor.locator.page ?? null,
+        quote: anchor.quote,
+        bbox: anchor.locator.bbox ?? null
+      }))
+    }))
+  };
+
+  return [
+    {
+      role: "system",
+      content:
+        "你负责把代码观察与教材证据综合成结构化 mapping finding。输出必须是严格 JSON，对应用户提供的 output_contract。"
+    },
+    {
+      role: "user",
+      content: JSON.stringify(promptPayload, null, 2)
+    }
+  ];
+}
+
+export class DeepSeekLlmSynthesisAdapter implements LlmSynthesisPort {
+  constructor(
+    private readonly client: LlmChatClientPort,
+    private readonly config: Pick<DeepSeekLlmConfig, "model">
+  ) {}
+
   async synthesize(input: SynthesisInput): Promise<SynthesisOutput> {
     const evidenceByCategory = new Map(input.evidenceCandidates.map((item) => [item.category, item.anchors]));
     const concepts = new Map<string, MappingConcept>();
-    const findings: MappingFinding[] = [];
-    const evidenceLinks: MappingEvidenceLink[] = [];
-    const crossRefs: MappingCrossRef[] = [];
     const anchors = [...input.codeAnchors];
 
     for (const candidate of input.evidenceCandidates) {
@@ -664,54 +999,106 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
       }
     }
 
-    const addFinding = (config: {
-      id: string;
-      observationCategory: string;
-      title: string;
-      summary: string;
-      severity: "high" | "medium" | "low";
-      conceptId: string;
-      primaryCodeAnchorIds: string[];
-      tags: string[];
-    }): void => {
-      const observation = input.observations.find((item) => item.category === config.observationCategory);
+    if (!input.evidenceCandidates.length) {
+      return {
+        schema: buildSchema({
+          synthesisInput: input,
+          anchors,
+          concepts: Array.from(concepts.values()),
+          findings: [],
+          evidenceLinks: [],
+          crossRefs: []
+        }),
+        status: "partial"
+      };
+    }
+
+    const raw = await this.client.completeJson({
+      messages: buildSynthesisMessages({
+        model: this.config.model,
+        observations: input.observations,
+        evidenceCandidates: input.evidenceCandidates,
+        codeAnchors: input.codeAnchors,
+        concepts: Array.from(concepts.values())
+      }),
+      temperature: 0.1
+    });
+    const parsed = llmSynthesisResponseSchema.parse(JSON.parse(extractJsonObject(raw)));
+    const findings: MappingFinding[] = [];
+    const evidenceLinks: MappingEvidenceLink[] = [];
+    const crossRefs: MappingCrossRef[] = [];
+    const findingIds = new Set<string>();
+    const codeAnchorById = new Map(input.codeAnchors.map((anchor) => [anchor.id, anchor]));
+
+    parsed.findings.forEach((candidate, index) => {
+      const observationCategories = Array.isArray(candidate.observation_category)
+        ? candidate.observation_category
+        : [candidate.observation_category];
+      const observation = input.observations.find((item) => observationCategories.includes(item.category));
       if (!observation) {
         return;
       }
-      const actualPdfAnchors = evidenceByCategory.get(observation.category) ?? [];
+
+      const template = BOOK_EVIDENCE_BY_CATEGORY[observation.category];
+      if (template) {
+        concepts.set(template.concept.id, template.concept);
+      }
+
+      const availableCodeAnchorIds = observation.code_anchor_ids.filter((id) => codeAnchorById.has(id));
+      const availablePdfAnchors = evidenceByCategory.get(observation.category) ?? [];
+      const preferredCodeAnchorIds = candidate.primary_code_anchor_ids.filter((id) =>
+        availableCodeAnchorIds.includes(id)
+      );
+      const preferredPdfAnchorIds = candidate.primary_pdf_anchor_ids.filter((id) =>
+        availablePdfAnchors.some((anchor) => anchor.id === id)
+      );
+      const conceptId = candidate.concept_id && concepts.has(candidate.concept_id)
+        ? candidate.concept_id
+        : template?.concept.id ?? "";
+      const findingIdBase = candidate.id && !findingIds.has(candidate.id)
+        ? candidate.id
+        : `finding-${slugify(candidate.title)}-${index + 1}`;
+      const findingId = findingIds.has(findingIdBase) ? `${findingIdBase}-${index + 1}` : findingIdBase;
+      findingIds.add(findingId);
 
       const finding: MappingFinding = {
-        id: config.id,
-        title: config.title,
-        summary: config.summary,
-        severity: config.severity,
-        confidence: observation.confidence,
-        concept_ids: [config.conceptId],
-        primary_code_anchor_ids: config.primaryCodeAnchorIds,
-        primary_pdf_anchor_ids: actualPdfAnchors.length ? [actualPdfAnchors[0].id] : [],
-        tags: config.tags,
+        id: findingId,
+        title: candidate.title,
+        summary: candidate.summary,
+        severity: candidate.severity,
+        confidence: clampUnitScore(observation.confidence),
+        concept_ids: conceptId ? [conceptId] : [],
+        primary_code_anchor_ids: preferredCodeAnchorIds.length
+          ? preferredCodeAnchorIds
+          : availableCodeAnchorIds.slice(0, 1),
+        primary_pdf_anchor_ids: preferredPdfAnchorIds.length
+          ? preferredPdfAnchorIds
+          : availablePdfAnchors.slice(0, 1).map((anchor) => anchor.id),
+        tags: uniqueList(candidate.tags).slice(0, 6),
         representative_evidence_ids: []
       };
 
-      observation.code_anchor_ids.forEach((anchorId, index) => {
-        const evidenceId = `ev-${finding.id}-code-${index + 1}`;
-        finding.representative_evidence_ids.push(evidenceId);
+      availableCodeAnchorIds.forEach((anchorId, codeIndex) => {
+        const evidenceId = `ev-${finding.id}-code-${codeIndex + 1}`;
+        if (codeIndex === 0) {
+          finding.representative_evidence_ids.push(evidenceId);
+        }
         evidenceLinks.push({
           id: evidenceId,
           finding_id: finding.id,
           anchor_id: anchorId,
           relation: "observed_in_code",
-          score: observation.confidence,
-          importance_score: observation.confidence,
+          score: clampUnitScore(observation.confidence),
+          importance_score: clampUnitScore(observation.confidence),
           novelty_score: 0.7,
-          representative: index === 0,
+          representative: codeIndex === 0,
           rationale: observation.summary
         });
       });
 
-      (evidenceByCategory.get(observation.category) ?? []).forEach((anchor, index) => {
-        const evidenceId = `ev-${finding.id}-pdf-${index + 1}`;
-        if (index === 0) {
+      availablePdfAnchors.forEach((anchor, pdfIndex) => {
+        const evidenceId = `ev-${finding.id}-pdf-${pdfIndex + 1}`;
+        if (pdfIndex === 0) {
           finding.representative_evidence_ids.push(evidenceId);
         }
         evidenceLinks.push({
@@ -719,180 +1106,45 @@ export class DeterministicSynthesisAdapter implements LlmSynthesisPort {
           finding_id: finding.id,
           anchor_id: anchor.id,
           relation: "supported_by_book",
-          score: Math.max(0.82, observation.confidence - 0.03),
-          importance_score: Math.max(0.8, observation.confidence - 0.03),
+          score: clampUnitScore(Math.max(0.82, observation.confidence - 0.03)),
+          importance_score: clampUnitScore(Math.max(0.8, observation.confidence - 0.03)),
           novelty_score: 0.72,
-          representative: index === 0,
-          rationale: `教材片段支持“${config.title}”这条判断。`
+          representative: pdfIndex === 0,
+          rationale: `教材片段支持“${candidate.title}”这条判断。`
         });
       });
 
       findings.push(finding);
-    };
-
-    addFinding({
-      id: "finding-complete-too-much",
-      observationCategory: "function_design",
-      title: "方法职责过多",
-      summary: "该方法同时做前置钩子、状态推进、下一任务构造与持久化，偏离单一职责。",
-      severity: "high",
-      conceptId: "concept-function-design",
-      primaryCodeAnchorIds: ["anchor-code-complete-method"],
-      tags: ["职责过多", "流程编排"]
     });
 
-    addFinding({
-      id: "finding-mixed-abstraction-level",
-      observationCategory: "abstraction_level",
-      title: "同一方法混杂多层抽象",
-      summary: "方法里既有高层编排，又有对象构造和 service 调用，抽象层级不统一。",
-      severity: "high",
-      conceptId: "concept-function-design",
-      primaryCodeAnchorIds: ["anchor-code-complete-method"],
-      tags: ["抽象层次", "stepdown"]
-    });
-
-    addFinding({
-      id: "finding-naming-issues",
-      observationCategory: "naming",
-      title: "命名不够表意且存在语义错位",
-      summary: "部分方法名没有准确表达职责，且 roleCode / nodeCode 的语义存在错位。",
-      severity: "medium",
-      conceptId: "concept-naming",
-      primaryCodeAnchorIds: ["anchor-code-handler", "anchor-code-role-code", "anchor-code-create-next-task"],
-      tags: ["命名", "误导语义"]
-    });
-
-    addFinding({
-      id: "finding-magic-number",
-      observationCategory: "magic_number",
-      title: "出现缺乏业务语义的魔法值",
-      summary: "状态值直接写死数字，无法从代码本身看出业务语义。",
-      severity: "medium",
-      conceptId: "concept-constants",
-      primaryCodeAnchorIds: ["anchor-code-magic-number"],
-      tags: ["魔法值", "可读性"]
-    });
-
-    addFinding({
-      id: "finding-redundant-comment",
-      observationCategory: "comments",
-      title: "使用了冗余注释",
-      summary: "注释重复了代码已表达的事实，没有增加信息增量。",
-      severity: "low",
-      conceptId: "concept-comments",
-      primaryCodeAnchorIds: ["anchor-code-handler"],
-      tags: ["注释", "自解释代码"]
-    });
-
-    addFinding({
-      id: "finding-class-responsibility",
-      observationCategory: "class_responsibility",
-      title: "类职责边界偏宽",
-      summary: "类同时定义模板流程并负责对象构造，未来会承受多个变化点。",
-      severity: "medium",
-      conceptId: "concept-class-responsibility",
-      primaryCodeAnchorIds: ["anchor-code-class-scope"],
-      tags: ["类设计", "变化原因"]
-    });
-
-    if (findings.some((finding) => finding.id === "finding-complete-too-much") &&
-      findings.some((finding) => finding.id === "finding-mixed-abstraction-level")) {
+    parsed.cross_refs.forEach((item, index) => {
+      if (!findingIds.has(item.from_finding_id) || !findingIds.has(item.to_finding_id)) {
+        return;
+      }
+      if (item.from_finding_id === item.to_finding_id) {
+        return;
+      }
       crossRefs.push({
-        id: "xref-f1-f2",
+        id: `xref-${slugify(item.from_finding_id)}-${slugify(item.to_finding_id)}-${index + 1}`,
         from_type: "finding",
-        from_id: "finding-complete-too-much",
+        from_id: item.from_finding_id,
         to_type: "finding",
-        to_id: "finding-mixed-abstraction-level",
-        relation: "closely_related",
-        score: 0.91,
-        reason: "职责过多通常伴随抽象层级混杂。"
+        to_id: item.to_finding_id,
+        relation: item.relation,
+        score: clampUnitScore(item.score),
+        reason: item.reason
       });
-    }
-
-    const documents = [
-      {
-        id: "doc-clean-code-pdf",
-        kind: "pdf" as const,
-        title: "Clean Code",
-        path: "Clean_Code.pdf",
-        page_count: 462
-      },
-      {
-        id: "doc-submission",
-        kind: "code" as const,
-        title: input.fileName,
-        path: input.fileName,
-        language: "java",
-        content: input.sourceCode
-      }
-    ];
-
-    const bookCoverage = Array.from(concepts.values()).map((concept) => {
-      const pages = evidenceLinks
-        .filter((item) => item.relation === "supported_by_book")
-        .map((item) => anchors.find((anchor) => anchor.id === item.anchor_id))
-        .filter((anchor): anchor is MappingAnchor => Boolean(anchor))
-        .filter((anchor) => {
-          const finding = findings.find((item) => item.id === evidenceLinks.find((ev) => ev.anchor_id === anchor.id)?.finding_id);
-          return Boolean(finding?.concept_ids.includes(concept.id));
-        })
-        .map((anchor) => anchor.locator.page ?? 0);
-      const uniquePages = [...new Set(pages)].filter((page) => page > 0);
-      return {
-        concept_id: concept.id,
-        matched_pages: uniquePages,
-        match_count: uniquePages.length
-      };
     });
-
-    const schema: MappingSchema = {
-      schema_version: "1.0.0",
-      task: {
-        id: `task-${input.submissionId}`,
-        goal: "从单个 Java 文件映射到固定教材中的精准溯源结果",
-        created_at: new Date().toISOString(),
-        language: "zh-CN"
-      },
-      documents,
-      anchors,
-      concepts: Array.from(concepts.values()),
-      findings,
-      evidence_links: evidenceLinks,
-      cross_refs: crossRefs,
-      ui_indexes: {
-        default_finding_order: findings.map((item) => item.id),
-        finding_groups: buildFindingGroups(findings),
-        book_coverage: bookCoverage,
-        default_selected: findings.length
-          ? {
-              finding_id: findings[0].id,
-              evidence_id: findings[0].representative_evidence_ids[0]
-            }
-          : {
-              finding_id: "",
-              evidence_id: ""
-            },
-        hero: {
-          title: "精准溯源与交叉引用 Demo",
-          description: "MCP mapping server 生成的结构化结果，可直接交给 viewer 渲染。",
-          pills: [
-            `代码：${input.fileName}`,
-            "教材：Clean_Code.pdf",
-            `状态：${findings.length ? "有命中" : "无命中"}`
-          ]
-        },
-        summary: {
-          title: "结论摘要",
-          text: findings.length
-            ? `本次映射共生成 ${findings.length} 条 finding，均来自代码观察与固定教材证据的关联。`
-            : "本次映射没有找到足够的教材证据，因此返回 partial 结果。"
-        }
-      }
-    };
 
     return {
-      schema,
+      schema: buildSchema({
+        synthesisInput: input,
+        anchors,
+        concepts: Array.from(concepts.values()),
+        findings,
+        evidenceLinks,
+        crossRefs
+      }),
       status: findings.length ? "completed" : "partial"
     };
   }

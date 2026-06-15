@@ -8,13 +8,15 @@ import {
   InProcessJobScheduler,
   RunMappingPipelineUseCase
 } from "../application/usecases.js";
-import { resolvePdfPath } from "./config.js";
+import { resolveDeepSeekConfig, resolvePdfPath } from "./config.js";
 import {
   BasicMappingSchemaValidatorAdapter,
-  DeterministicSynthesisAdapter,
+  DeepSeekLlmSynthesisAdapter,
+  ExternalDeepSeekChatClient,
   ExternalPdfReaderMcpClient,
   HeuristicCodeObservationService,
   HybridPdfCorpusRetrieverAdapter,
+  type LlmChatClientPort,
   McpPdfCorpusRetrieverAdapter,
   SimpleJavaParserAdapter,
   StaticPdfCorpusRetrieverAdapter,
@@ -41,6 +43,7 @@ export function createApplication(options?: {
   baseDir?: string;
   pdfPath?: string;
   pdfReaderClient?: PdfReaderMcpClientPort;
+  llmClient?: LlmChatClientPort;
 }): Application {
   const baseDir = resolve(options?.baseDir ?? join(process.cwd(), ".runtime"));
   mkdirSync(baseDir, { recursive: true });
@@ -60,7 +63,11 @@ export function createApplication(options?: {
   const retriever = hasLocalPdf(pdfPath)
     ? new HybridPdfCorpusRetrieverAdapter(mcpRetriever, staticRetriever)
     : staticRetriever;
-  const synthesizer = new DeterministicSynthesisAdapter();
+  const deepSeekConfig = options?.llmClient ? null : resolveDeepSeekConfig();
+  const llmClient = options?.llmClient ?? new ExternalDeepSeekChatClient(deepSeekConfig!);
+  const synthesizer = new DeepSeekLlmSynthesisAdapter(llmClient, {
+    model: deepSeekConfig?.model ?? "deepseek-v4-flash"
+  });
   const validator = new BasicMappingSchemaValidatorAdapter();
 
   const runMappingPipeline = new RunMappingPipelineUseCase({
@@ -89,6 +96,7 @@ export function createApplication(options?: {
     getMappingResult: new GetMappingResultUseCase(jobRepository, resultRepository),
     async dispose() {
       await pdfReaderClient.close();
+      await llmClient.close();
     }
   };
 }
