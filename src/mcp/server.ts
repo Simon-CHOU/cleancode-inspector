@@ -64,6 +64,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         },
         required: ["job_id"]
       }
+    },
+    {
+      name: "mapping_open_viewer",
+      description: "根据 job_id 打开浏览器 viewer，用于承载 mapping 可视化结果。",
+      inputSchema: {
+        type: "object",
+        properties: {
+          job_id: { type: "string" }
+        },
+        required: ["job_id"]
+      }
     }
   ]
 }));
@@ -85,6 +96,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
       case "mapping_get_result": {
         const result = await service.mappingGetResult(request.params.arguments ?? {});
+        return {
+          content: [{ type: "text", text: JSON.stringify(result, null, 2) }]
+        };
+      }
+      case "mapping_open_viewer": {
+        const result = await service.mappingOpenViewer(request.params.arguments ?? {});
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }]
         };

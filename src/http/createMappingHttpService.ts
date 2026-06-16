@@ -1,10 +1,8 @@
 import { z } from "zod";
 
-import { resolveGatewayBaseUrl } from "../bootstrap/config.js";
 import type { Application } from "../bootstrap/createApplication.js";
 import { DomainError } from "../domain/errors.js";
-import { buildHostHints, buildViewerUrl } from "../host/viewerLinks.js";
-import { openBrowser } from "../host/openBrowser.js";
+import { buildHostHints, type HostHints } from "../host/viewerLinks.js";
 
 const createJobSchema = z.object({
   file_name: z.string().min(1),
@@ -19,9 +17,18 @@ const jobIdSchema = z.object({
   job_id: z.string().min(1)
 });
 
+export interface HttpJobEnvelope<TJob> extends HostHints {
+  job: TJob;
+}
+
 function normalizeError(error: unknown): Error & { code?: string } {
   if (error instanceof DomainError) {
     return error;
+  }
+  if (error instanceof z.ZodError) {
+    return Object.assign(new Error(error.issues.map((issue) => issue.message).join("; ")), {
+      code: "INVALID_REQUEST"
+    });
   }
   if (error instanceof Error) {
     return error;
@@ -29,41 +36,48 @@ function normalizeError(error: unknown): Error & { code?: string } {
   return new Error(String(error));
 }
 
-export function createMappingMcpService(
-  application: Application,
-  options?: {
-    gatewayBaseUrl?: string;
-    openUrl?: (url: string) => Promise<void>;
+function mapErrorToStatusCode(code: string): number {
+  switch (code) {
+    case "INVALID_REQUEST":
+      return 400;
+    case "JOB_NOT_FOUND":
+    case "RESULT_NOT_READY":
+    case "CORPUS_NOT_FOUND":
+      return 404;
+    case "CORPUS_NOT_READY":
+    case "SCHEMA_VALIDATION_FAILED":
+      return 409;
+    default:
+      return 500;
   }
-) {
-  const gatewayBaseUrl = options?.gatewayBaseUrl ?? resolveGatewayBaseUrl();
-  const openUrl = options?.openUrl ?? openBrowser;
+}
 
+export function createMappingHttpService(application: Application, gatewayBaseUrl: string) {
   return {
     async mappingCreateJob(input: unknown) {
       const payload = createJobSchema.parse(input);
       const job = await application.createMappingJob.execute(payload);
       return {
-        ...job,
+        job,
         ...buildHostHints({
           baseUrl: gatewayBaseUrl,
           jobId: job.job_id,
           status: job.status
         })
-      };
+      } satisfies HttpJobEnvelope<typeof job>;
     },
 
     async mappingGetJob(input: unknown) {
       const payload = jobIdSchema.parse(input);
       const job = await application.getMappingJob.execute({ jobId: payload.job_id });
       return {
-        ...job,
+        job,
         ...buildHostHints({
           baseUrl: gatewayBaseUrl,
           jobId: job.job_id,
           status: job.status
         })
-      };
+      } satisfies HttpJobEnvelope<typeof job>;
     },
 
     async mappingGetResult(input: unknown) {
@@ -71,33 +85,20 @@ export function createMappingMcpService(
       return application.getMappingResult.execute({ jobId: payload.job_id });
     },
 
-    async mappingOpenViewer(input: unknown) {
-      const payload = jobIdSchema.parse(input);
-      await application.getMappingJob.execute({ jobId: payload.job_id });
-      const viewerUrl = buildViewerUrl(gatewayBaseUrl, payload.job_id);
-      try {
-        await openUrl(viewerUrl);
-        return {
-          job_id: payload.job_id,
-          viewer_url: viewerUrl,
-          opened: true,
-          message: "Viewer opened in the default browser."
-        };
-      } catch (error) {
-        return {
-          job_id: payload.job_id,
-          viewer_url: viewerUrl,
-          opened: false,
-          message: error instanceof Error ? error.message : String(error)
-        };
-      }
+    health() {
+      return {
+        status: "ok" as const,
+        gateway_base_url: gatewayBaseUrl
+      };
     },
 
-    formatToolError(error: unknown) {
+    formatHttpError(error: unknown) {
       const normalized = normalizeError(error);
+      const code = normalized.code ?? "UNEXPECTED_ERROR";
       return {
-        code: normalized.code ?? "UNEXPECTED_ERROR",
-        message: normalized.message
+        code,
+        message: normalized.message,
+        statusCode: mapErrorToStatusCode(code)
       };
     }
   };

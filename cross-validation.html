@@ -74,6 +74,277 @@
             line-height: 1.65;
         }
 
+        .control-shell {
+            display: grid;
+            grid-template-columns: minmax(360px, 1.2fr) minmax(280px, 0.8fr);
+            gap: 18px;
+        }
+
+        .control-card {
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: rgba(15, 23, 42, 0.78);
+            box-shadow: var(--shadow);
+        }
+
+        .control-card h2,
+        .runtime-card h3,
+        .field label {
+            margin: 0 0 8px;
+        }
+
+        .control-card p,
+        .runtime-card p,
+        .field small,
+        .status-banner {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .runtime-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .runtime-card {
+            padding: 14px 16px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: rgba(8, 15, 31, 0.72);
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .field label {
+            font-size: 14px;
+            color: #bfdbfe;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: rgba(8, 15, 31, 0.88);
+            color: var(--text);
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .primary-button,
+        .secondary-button {
+            cursor: pointer;
+            padding: 11px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+        }
+
+        .primary-button {
+            background: linear-gradient(180deg, rgba(56, 189, 248, 0.22), rgba(59, 130, 246, 0.18));
+            color: var(--text);
+        }
+
+        .secondary-button {
+            background: rgba(8, 15, 31, 0.82);
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .status-banner {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(125, 211, 252, 0.22);
+            background: rgba(14, 116, 144, 0.14);
+        }
+
+        .status-banner.error {
+            border-color: rgba(248, 113, 113, 0.28);
+            background: rgba(127, 29, 29, 0.28);
+            color: #fecaca;
+        }
+
+        .runtime-shell {
+            display: grid;
+            gap: 14px;
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: var(--shadow);
+        }
+
+        .runtime-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .runtime-header h2,
+        .runtime-log-title,
+        .runtime-stage-label {
+            margin: 0;
+        }
+
+        .runtime-header p,
+        .runtime-log-detail,
+        .runtime-log-meta {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .runtime-progress {
+            position: relative;
+            overflow: hidden;
+            height: 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(125, 211, 252, 0.18);
+            background: rgba(8, 15, 31, 0.88);
+        }
+
+        .runtime-progress-fill {
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.88), rgba(56, 189, 248, 0.92), rgba(99, 102, 241, 0.92));
+            box-shadow: 0 0 22px rgba(56, 189, 248, 0.24);
+            transition: width 0.3s ease;
+        }
+
+        .runtime-stages {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .runtime-stage {
+            padding: 10px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: rgba(8, 15, 31, 0.76);
+            display: grid;
+            gap: 6px;
+        }
+
+        .runtime-stage.is-completed {
+            border-color: rgba(34, 197, 94, 0.3);
+            background: rgba(20, 83, 45, 0.24);
+        }
+
+        .runtime-stage.is-running {
+            border-color: rgba(56, 189, 248, 0.34);
+            background: rgba(8, 47, 73, 0.34);
+            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.12);
+        }
+
+        .runtime-stage.is-failed {
+            border-color: rgba(248, 113, 113, 0.3);
+            background: rgba(127, 29, 29, 0.24);
+        }
+
+        .runtime-stage-label {
+            font-size: 13px;
+            color: #dbeafe;
+        }
+
+        .runtime-stage-meta {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .runtime-log-list {
+            display: grid;
+            gap: 12px;
+            max-height: 360px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .runtime-log-item {
+            display: grid;
+            gap: 10px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: rgba(8, 15, 31, 0.76);
+        }
+
+        .runtime-log-item.is-completed {
+            border-color: rgba(34, 197, 94, 0.22);
+        }
+
+        .runtime-log-item.is-running {
+            border-color: rgba(56, 189, 248, 0.3);
+            background: rgba(8, 47, 73, 0.28);
+        }
+
+        .runtime-log-item.is-failed {
+            border-color: rgba(248, 113, 113, 0.3);
+            background: rgba(127, 29, 29, 0.24);
+        }
+
+        .runtime-log-head,
+        .runtime-log-badges {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .runtime-badge,
+        .runtime-source-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .runtime-log-item.is-completed .runtime-badge {
+            border-color: rgba(34, 197, 94, 0.24);
+            color: #bbf7d0;
+        }
+
+        .runtime-log-item.is-running .runtime-badge {
+            border-color: rgba(56, 189, 248, 0.24);
+            color: #bae6fd;
+        }
+
+        .runtime-log-item.is-failed .runtime-badge {
+            border-color: rgba(248, 113, 113, 0.24);
+            color: #fecaca;
+        }
+
+        .runtime-log-lines {
+            display: grid;
+            gap: 6px;
+            padding-left: 18px;
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        .runtime-log-lines li {
+            line-height: 1.55;
+        }
+
         .hero-meta,
         .coverage-list,
         .group-list,
@@ -515,8 +786,13 @@
         }
 
         @media (max-width: 1420px) {
+            .control-shell,
             .layout {
                 grid-template-columns: 1fr;
+            }
+
+            .runtime-stages {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .panel {
@@ -546,6 +822,73 @@
                 <p id="heroDescription">正在加载 schema 数据...</p>
             </div>
             <div class="hero-meta" id="heroPills"></div>
+        </section>
+
+        <section class="control-shell">
+            <article class="control-card">
+                <h2>运行入口</h2>
+                <p>上传单个 `.java` 文件后，页面会通过本地 HTTP Gateway 创建 mapping job、轮询状态，并在完成后自动切换到结果视图。</p>
+                <form id="uploadForm">
+                    <div class="field">
+                        <label for="javaFileInput">选择 Java 文件</label>
+                        <input class="file-input" id="javaFileInput" name="javaFileInput" type="file" accept=".java,text/x-java-source" />
+                        <small>首版只支持单个 `.java` 文件；浏览器会直接读取文本内容并提交 JSON 请求。</small>
+                    </div>
+                    <div class="action-row">
+                        <button class="primary-button" id="submitButton" type="submit">上传并开始 Mapping</button>
+                        <button class="secondary-button" id="demoButton" type="button">加载 Demo 结果</button>
+                    </div>
+                    <div class="status-banner" id="statusBanner">当前未启动任务。你可以上传 `.java` 文件，或切换到 Demo 模式。</div>
+                </form>
+            </article>
+
+            <aside class="control-card">
+                <h2>运行状态</h2>
+                <div class="runtime-grid">
+                    <div class="runtime-card">
+                        <h3>当前模式</h3>
+                        <p id="modeText">初始化中</p>
+                    </div>
+                    <div class="runtime-card">
+                        <h3>任务状态</h3>
+                        <p id="jobStatusText">尚未创建任务</p>
+                    </div>
+                    <div class="runtime-card">
+                        <h3>阶段 / 进度</h3>
+                        <p id="jobStageText">等待输入</p>
+                    </div>
+                    <div class="runtime-card">
+                        <h3>当前 Viewer URL</h3>
+                        <p id="viewerUrlText">尚未生成</p>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="runtime-shell">
+            <div class="runtime-header">
+                <div>
+                    <h2>运行过程流</h2>
+                    <p>这里会按阶段持续刷新 Host / RAG / LLM 的运行痕迹，而不是只显示一个难以判断真假的百分比。</p>
+                </div>
+                <div class="runtime-badge" id="runtimeProgressText">等待任务创建</div>
+            </div>
+            <div class="runtime-progress">
+                <div class="runtime-progress-fill" id="runtimeProgressFill"></div>
+            </div>
+            <div class="runtime-stages" id="runtimeStageList"></div>
+            <div class="runtime-log-list" id="runtimeLogList">
+                <div class="runtime-log-item">
+                    <div class="runtime-log-head">
+                        <h3 class="runtime-log-title">等待任务开始</h3>
+                        <div class="runtime-log-badges">
+                            <span class="runtime-source-badge">host</span>
+                            <span class="runtime-badge">idle</span>
+                        </div>
+                    </div>
+                    <p class="runtime-log-detail">上传 `.java` 文件后，这里会逐步显示 parse / analyze / retrieve / synthesize / validate / publish 的过程日志。</p>
+                </div>
+            </div>
         </section>
 
         <section class="layout">
@@ -601,7 +944,7 @@
                             <p id="selectedMeta">点击左侧或中间的任意证据，右侧会切换到对应定位。</p>
                         </div>
                         <div class="preview-actions">
-                            <a class="link-button" id="pdfAction" href="Clean_Code.pdf#page=1" target="_blank" rel="noopener noreferrer">打开 PDF 页面</a>
+                            <a class="link-button" id="pdfAction" href="#" target="_blank" rel="noopener noreferrer">打开 PDF 页面</a>
                             <button class="link-button" id="codeAction" type="button">定位代码片段</button>
                         </div>
                     </div>
@@ -615,7 +958,7 @@
                         <div class="snippet-card">
                             <h4>PDF 固定位置</h4>
                             <p id="selectedPdfHint">将跳转到对应教材页码。</p>
-                            <iframe class="pdf-frame" id="pdfFrame" src="Clean_Code.pdf#page=1&zoom=page-width" title="PDF Preview"></iframe>
+                            <iframe class="pdf-frame" id="pdfFrame" src="about:blank" title="PDF Preview"></iframe>
                         </div>
 
                         <div class="code-shell">
@@ -643,11 +986,28 @@
     <script>
         const state = {
             schema: null,
+            schemaMaps: null,
             selectedFindingId: null,
             selectedEvidenceId: null,
-            activeGroupId: "all"
+            activeGroupId: "all",
+            mode: "idle",
+            currentJobId: null,
+            currentJob: null,
+            pollHandle: null,
+            runtimeEntries: []
         };
 
+        const STAGE_DEFINITIONS = [
+            { id: "ingest", label: "接收", hint: "接收上传文件" },
+            { id: "parse", label: "解析", hint: "抽取代码锚点" },
+            { id: "analyze", label: "分析", hint: "归纳代码观察" },
+            { id: "retrieve", label: "RAG", hint: "检索教材证据" },
+            { id: "synthesize", label: "综合", hint: "LLM 对齐推理" },
+            { id: "validate", label: "校验", hint: "校验 schema" },
+            { id: "publish", label: "发布", hint: "输出结果" }
+        ];
+
+        const apiBaseUrl = location.origin && location.origin !== "null" ? location.origin : "";
         const heroTitleEl = document.getElementById("heroTitle");
         const heroDescriptionEl = document.getElementById("heroDescription");
         const heroPillsEl = document.getElementById("heroPills");
@@ -673,6 +1033,19 @@
         const crossSummaryEl = document.getElementById("crossSummary");
         const crossClaimsEl = document.getElementById("crossClaims");
         const relatedSourcesEl = document.getElementById("relatedSources");
+        const uploadFormEl = document.getElementById("uploadForm");
+        const javaFileInputEl = document.getElementById("javaFileInput");
+        const submitButtonEl = document.getElementById("submitButton");
+        const demoButtonEl = document.getElementById("demoButton");
+        const statusBannerEl = document.getElementById("statusBanner");
+        const modeTextEl = document.getElementById("modeText");
+        const jobStatusTextEl = document.getElementById("jobStatusText");
+        const jobStageTextEl = document.getElementById("jobStageText");
+        const viewerUrlTextEl = document.getElementById("viewerUrlText");
+        const runtimeProgressTextEl = document.getElementById("runtimeProgressText");
+        const runtimeProgressFillEl = document.getElementById("runtimeProgressFill");
+        const runtimeStageListEl = document.getElementById("runtimeStageList");
+        const runtimeLogListEl = document.getElementById("runtimeLogList");
 
         function escapeHtml(text) {
             return String(text)
@@ -700,27 +1073,180 @@
         }
 
         function getFindingById(id) {
-            return state.schemaMaps.findings[id];
+            return state.schemaMaps?.findings[id];
         }
 
         function getConceptById(id) {
-            return state.schemaMaps.concepts[id];
+            return state.schemaMaps?.concepts[id];
         }
 
         function getAnchorById(id) {
-            return state.schemaMaps.anchors[id];
+            return state.schemaMaps?.anchors[id];
         }
 
         function getDocumentById(id) {
-            return state.schemaMaps.documents[id];
+            return state.schemaMaps?.documents[id];
         }
 
         function getEvidenceById(id) {
-            return state.schemaMaps.evidenceLinks[id];
+            return state.schemaMaps?.evidenceLinks[id];
         }
 
         function getEvidenceForFinding(findingId) {
+            if (!state.schema) {
+                return [];
+            }
             return state.schema.evidence_links.filter((item) => item.finding_id === findingId);
+        }
+
+        function setStatusBanner(message, isError = false) {
+            statusBannerEl.textContent = message;
+            statusBannerEl.classList.toggle("error", isError);
+        }
+
+        function clearPolling() {
+            if (state.pollHandle) {
+                clearTimeout(state.pollHandle);
+                state.pollHandle = null;
+            }
+        }
+
+        function escapeLine(text) {
+            return escapeHtml(text).replaceAll("\n", "<br>");
+        }
+
+        function formatRuntimeTimestamp(value) {
+            if (!value) {
+                return "";
+            }
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) {
+                return "";
+            }
+            return date.toLocaleTimeString("zh-CN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+        }
+
+        function getStageRank(stageId) {
+            return STAGE_DEFINITIONS.findIndex((item) => item.id === stageId);
+        }
+
+        function getStageState(stageId, job) {
+            if (!job) {
+                return "pending";
+            }
+            const targetRank = getStageRank(stageId);
+            const currentRank = getStageRank(job.stage);
+            if (job.status === "failed" && job.stage === stageId) {
+                return "failed";
+            }
+            if (currentRank > targetRank) {
+                return "completed";
+            }
+            if (currentRank === targetRank) {
+                if (job.status === "completed" || job.status === "partial") {
+                    return "completed";
+                }
+                if (job.status === "failed") {
+                    return "failed";
+                }
+                return "running";
+            }
+            return "pending";
+        }
+
+        function renderRuntimeProgress(job) {
+            const progressPercent = job?.progress_percent || 0;
+            runtimeProgressFillEl.style.width = `${progressPercent}%`;
+            runtimeProgressTextEl.textContent = job
+                ? `${job.stage} · ${progressPercent}%`
+                : "等待任务创建";
+
+            runtimeStageListEl.innerHTML = STAGE_DEFINITIONS.map((stage) => {
+                const status = getStageState(stage.id, job);
+                return `
+                    <article class="runtime-stage is-${status}">
+                        <h3 class="runtime-stage-label">${escapeHtml(stage.label)}</h3>
+                        <div class="runtime-stage-meta">${escapeHtml(stage.hint)}</div>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function renderRuntimeLogs(entries) {
+            state.runtimeEntries = entries || [];
+            if (!state.runtimeEntries.length) {
+                runtimeLogListEl.innerHTML = `
+                    <div class="runtime-log-item">
+                        <div class="runtime-log-head">
+                            <h3 class="runtime-log-title">等待运行日志</h3>
+                            <div class="runtime-log-badges">
+                                <span class="runtime-source-badge">host</span>
+                                <span class="runtime-badge">idle</span>
+                            </div>
+                        </div>
+                        <p class="runtime-log-detail">任务创建后，这里会流式刷新 parse / RAG / LLM / validate / publish 的过程日志。</p>
+                    </div>
+                `;
+                return;
+            }
+
+            runtimeLogListEl.innerHTML = state.runtimeEntries.map((entry) => `
+                <article class="runtime-log-item is-${entry.status}">
+                    <div class="runtime-log-head">
+                        <h3 class="runtime-log-title">${escapeHtml(entry.title)}</h3>
+                        <div class="runtime-log-badges">
+                            <span class="runtime-source-badge">${escapeHtml(entry.source)}</span>
+                            <span class="runtime-badge">${escapeHtml(entry.status)}</span>
+                        </div>
+                    </div>
+                    <p class="runtime-log-detail">${escapeLine(entry.detail)}</p>
+                    ${entry.lines?.length ? `<ul class="runtime-log-lines">${entry.lines.map((line) => `<li>${escapeLine(line)}</li>`).join("")}</ul>` : ""}
+                    ${(entry.updated_at || entry.artifact_path)
+                        ? `<p class="runtime-log-meta">${escapeHtml(entry.updated_at ? `更新时间 ${formatRuntimeTimestamp(entry.updated_at)}` : "")}${entry.updated_at && entry.artifact_path ? " · " : ""}${escapeHtml(entry.artifact_path || "")}</p>`
+                        : ""}
+                </article>
+            `).join("");
+        }
+
+        function resetRuntimeLogs(message, source = "host") {
+            renderRuntimeProgress(state.currentJob);
+            renderRuntimeLogs([
+                {
+                    id: "runtime-placeholder",
+                    stage: "ingest",
+                    status: state.currentJob ? "running" : "pending",
+                    source,
+                    title: state.currentJob ? "等待更多运行信号" : "等待任务开始",
+                    detail: message
+                }
+            ]);
+        }
+
+        function setMode(mode, viewerUrl) {
+            state.mode = mode;
+            const labels = {
+                idle: "空闲模式",
+                demo: "Demo 模式",
+                job: "真实 Job 模式"
+            };
+            modeTextEl.textContent = labels[mode] || "未知模式";
+            viewerUrlTextEl.textContent = viewerUrl || "尚未生成";
+        }
+
+        function setBusy(isBusy) {
+            submitButtonEl.disabled = isBusy;
+            demoButtonEl.disabled = isBusy;
+        }
+
+        function updateQuery(params) {
+            const query = new URLSearchParams(params);
+            const queryString = query.toString();
+            const nextUrl = `${location.pathname}${queryString ? `?${queryString}` : ""}`;
+            history.replaceState({}, "", nextUrl);
         }
 
         function getFindingOrder() {
@@ -734,9 +1260,25 @@
 
         function getDisplayLocation(anchor) {
             if (anchor.kind === "code_span") {
-                return `${anchor.locator.file_path.split("\\").pop()}:L${anchor.locator.line_start}-L${anchor.locator.line_end}`;
+                const fileName = anchor.locator.file_path ? anchor.locator.file_path.split("\\").pop() : "source.java";
+                return `${fileName}:L${anchor.locator.line_start}-L${anchor.locator.line_end}`;
             }
             return `Clean_Code.pdf:p${anchor.locator.page}`;
+        }
+
+        function normalizePdfLink(rawLink) {
+            if (!rawLink) {
+                return "about:blank";
+            }
+            if (rawLink.startsWith("/api/corpus/pdf")) {
+                return apiBaseUrl ? `${apiBaseUrl}${rawLink}` : rawLink;
+            }
+            if (rawLink.startsWith("Clean_Code.pdf")) {
+                const hashIndex = rawLink.indexOf("#");
+                const hash = hashIndex >= 0 ? rawLink.slice(hashIndex) : "";
+                return apiBaseUrl ? `${apiBaseUrl}/api/corpus/pdf${hash}` : `/api/corpus/pdf${hash}`;
+            }
+            return rawLink;
         }
 
         function getPrimaryConceptName(finding) {
@@ -748,6 +1290,26 @@
             const ids = new Set(finding.representative_evidence_ids);
             const evidences = getEvidenceForFinding(finding.id).filter((item) => ids.has(item.id));
             return evidences.length ? evidences : getEvidenceForFinding(finding.id).slice(0, 2);
+        }
+
+        function resetSelectionPanel(message = "当前结果暂无 finding。") {
+            metaClaimEl.textContent = "当前结论：未选中";
+            metaSourceCountEl.textContent = "证据数：0";
+            claimTitleEl.textContent = "暂无可选结论";
+            claimDescriptionEl.textContent = message;
+            selectedTitleEl.textContent = "等待选择证据";
+            selectedMetaEl.textContent = "当前无可用证据。";
+            selectedExcerptEl.textContent = "暂无摘录。";
+            selectedPdfHintEl.textContent = "当前结果暂无 PDF 锚点。";
+            pdfActionEl.href = "#";
+            pdfActionEl.textContent = "打开 PDF 页面";
+            pdfFrameEl.src = "about:blank";
+            codeFocusLabelEl.textContent = "代码定位";
+            codeViewEl.innerHTML = '<div class="loading">暂无代码可渲染。</div>';
+            crossSummaryEl.textContent = "当前没有可展示的交叉引用。";
+            crossClaimsEl.innerHTML = '<span class="meta-tag">暂无跨 finding 引用</span>';
+            relatedSourcesEl.innerHTML = '<span class="meta-tag">暂无相关证据</span>';
+            sourceListEl.innerHTML = '<div class="loading">当前没有可展示的证据列表。</div>';
         }
 
         function renderHero() {
@@ -763,7 +1325,8 @@
             summaryTextEl.textContent = summary.text;
             coverageListEl.innerHTML = state.schema.ui_indexes.book_coverage.map((item) => {
                 const concept = getConceptById(item.concept_id);
-                return `<div class="coverage-pill">${escapeHtml(concept.name)} · ${item.match_count} 处 · p${item.matched_pages.join(", p")}</div>`;
+                const conceptName = concept ? concept.name : item.concept_id;
+                return `<div class="coverage-pill">${escapeHtml(conceptName)} · ${item.match_count} 处 · p${item.matched_pages.join(", p")}</div>`;
             }).join("");
         }
 
@@ -793,14 +1356,20 @@
 
             const groupName = state.activeGroupId === "all"
                 ? "全部结论"
-                : state.schema.ui_indexes.finding_groups.find((item) => item.id === state.activeGroupId).title;
+                : state.schema.ui_indexes.finding_groups.find((item) => item.id === state.activeGroupId)?.title || "当前分组";
 
             const cards = order.map((findingId, index) => {
                 const finding = getFindingById(findingId);
+                if (!finding) {
+                    return "";
+                }
                 const conceptName = getPrimaryConceptName(finding);
                 const evidences = getRepresentativeEvidence(finding);
                 const chips = evidences.map((evidence) => {
                     const anchor = getAnchorById(evidence.anchor_id);
+                    if (!anchor) {
+                        return "";
+                    }
                     const score = Math.round(evidence.score * 100);
                     return `
                         <button
@@ -845,8 +1414,10 @@
                         return;
                     }
                     const finding = getFindingById(card.dataset.findingId);
-                    const evidenceId = finding.representative_evidence_ids[0] || getEvidenceForFinding(finding.id)[0].id;
-                    selectFinding(finding.id, evidenceId);
+                    const evidenceId = finding.representative_evidence_ids[0] || getEvidenceForFinding(finding.id)[0]?.id;
+                    if (finding && evidenceId) {
+                        selectFinding(finding.id, evidenceId);
+                    }
                 });
             });
 
@@ -859,7 +1430,7 @@
 
         function renderCodeView() {
             const codeDocument = state.schema.documents.find((item) => item.kind === "code");
-            const lines = codeDocument.content.split("\n");
+            const lines = (codeDocument?.content || "").split("\n");
             codeViewEl.innerHTML = lines.map((text, index) => `
                 <div class="code-line" data-line="${index + 1}">
                     <div class="line-number">${String(index + 1).padStart(2, " ")}</div>
@@ -870,6 +1441,10 @@
 
         function updateClaimMeta() {
             const finding = getFindingById(state.selectedFindingId);
+            if (!finding) {
+                resetSelectionPanel();
+                return;
+            }
             const evidences = getEvidenceForFinding(finding.id);
             metaClaimEl.textContent = `当前结论：${finding.title}`;
             metaSourceCountEl.textContent = `证据数：${evidences.length}`;
@@ -879,10 +1454,17 @@
 
         function renderSourceList() {
             const finding = getFindingById(state.selectedFindingId);
+            if (!finding) {
+                sourceListEl.innerHTML = '<div class="loading">当前没有可展示的证据列表。</div>';
+                return;
+            }
             const evidences = getEvidenceForFinding(finding.id).sort((a, b) => b.importance_score - a.importance_score);
             sourceListEl.innerHTML = evidences.map((evidence) => {
                 const anchor = getAnchorById(evidence.anchor_id);
-                const document = getDocumentById(anchor.document_id);
+                const document = anchor ? getDocumentById(anchor.document_id) : null;
+                if (!anchor || !document) {
+                    return "";
+                }
                 const relation = evidence.relation === "supported_by_book" ? "书中依据" : "代码观察";
                 return `
                     <button type="button" class="source-item ${state.selectedEvidenceId === evidence.id ? "active" : ""}" data-evidence-id="${evidence.id}">
@@ -922,11 +1504,12 @@
             if (!anchor || anchor.kind !== "code_span") {
                 codeFocusLabelEl.textContent = "代码定位：当前证据未直接命中代码，已回退到本 finding 的主代码锚点";
                 const finding = getFindingById(state.selectedFindingId);
-                const fallbackAnchorId = finding.primary_code_anchor_ids[0];
+                const fallbackAnchorId = finding?.primary_code_anchor_ids[0];
                 if (!fallbackAnchorId) {
                     return;
                 }
-                return highlightCodeAnchor(getAnchorById(fallbackAnchorId));
+                highlightCodeAnchor(getAnchorById(fallbackAnchorId));
+                return;
             }
 
             codeFocusLabelEl.textContent = `代码定位：${getDisplayLocation(anchor)}`;
@@ -944,34 +1527,48 @@
         }
 
         function resolvePdfAnchor(evidenceAnchor) {
+            if (!evidenceAnchor) {
+                return null;
+            }
             if (evidenceAnchor.kind === "pdf_span") {
                 return evidenceAnchor;
             }
 
             const finding = getFindingById(state.selectedFindingId);
-            const fallbackPdfAnchorId = finding.primary_pdf_anchor_ids[0];
+            const fallbackPdfAnchorId = finding?.primary_pdf_anchor_ids[0];
             return fallbackPdfAnchorId ? getAnchorById(fallbackPdfAnchorId) : null;
         }
 
         function renderCrossReferences() {
             const finding = getFindingById(state.selectedFindingId);
             const evidence = getEvidenceById(state.selectedEvidenceId);
-            const concepts = finding.concept_ids.map((id) => getConceptById(id));
+            if (!finding || !evidence) {
+                crossSummaryEl.textContent = "当前没有可展示的交叉引用。";
+                crossClaimsEl.innerHTML = '<span class="meta-tag">暂无跨 finding 引用</span>';
+                relatedSourcesEl.innerHTML = '<span class="meta-tag">暂无相关证据</span>';
+                return;
+            }
+            const concepts = finding.concept_ids.map((id) => getConceptById(id)).filter(Boolean);
             const relatedFindingRefs = state.schema.cross_refs.filter((item) => item.from_type === "finding" && item.from_id === finding.id);
             const sameFindingEvidence = getEvidenceForFinding(finding.id).filter((item) => item.id !== evidence.id);
 
-            crossSummaryEl.textContent = `当前证据属于“${finding.title}”，概念簇为 ${concepts.map((item) => item.name).join(" / ")}。`;
+            crossSummaryEl.textContent = `当前证据属于“${finding.title}”，概念簇为 ${concepts.length ? concepts.map((item) => item.name).join(" / ") : "未归类"}。`;
 
             crossClaimsEl.innerHTML = relatedFindingRefs.length
                 ? relatedFindingRefs.map((ref) => {
                     const target = getFindingById(ref.to_id);
-                    return `<button type="button" class="cross-link" data-related-finding-id="${target.id}">${escapeHtml(target.title)} · ${Math.round(ref.score * 100)}%</button>`;
+                    return target
+                        ? `<button type="button" class="cross-link" data-related-finding-id="${target.id}">${escapeHtml(target.title)} · ${Math.round(ref.score * 100)}%</button>`
+                        : "";
                 }).join("")
                 : `<span class="meta-tag">暂无跨 finding 引用</span>`;
 
             relatedSourcesEl.innerHTML = sameFindingEvidence.length
                 ? sameFindingEvidence.map((item) => {
                     const anchor = getAnchorById(item.anchor_id);
+                    if (!anchor) {
+                        return "";
+                    }
                     const label = anchor.kind === "pdf_span"
                         ? `PDF p${anchor.locator.page}`
                         : `Code L${anchor.locator.line_start}-L${anchor.locator.line_end}`;
@@ -982,8 +1579,10 @@
             crossClaimsEl.querySelectorAll("[data-related-finding-id]").forEach((button) => {
                 button.addEventListener("click", () => {
                     const target = getFindingById(button.dataset.relatedFindingId);
-                    const evidenceId = target.representative_evidence_ids[0] || getEvidenceForFinding(target.id)[0].id;
-                    selectFinding(target.id, evidenceId);
+                    const evidenceId = target?.representative_evidence_ids[0] || getEvidenceForFinding(target?.id || "")[0]?.id;
+                    if (target && evidenceId) {
+                        selectFinding(target.id, evidenceId);
+                    }
                 });
             });
 
@@ -995,24 +1594,29 @@
         }
 
         function updatePreview() {
-            const finding = getFindingById(state.selectedFindingId);
             const evidence = getEvidenceById(state.selectedEvidenceId);
+            if (!evidence) {
+                resetSelectionPanel();
+                return;
+            }
             const anchor = getAnchorById(evidence.anchor_id);
             const pdfAnchor = resolvePdfAnchor(anchor);
-            const document = getDocumentById(anchor.document_id);
+            const document = anchor ? getDocumentById(anchor.document_id) : null;
 
-            selectedTitleEl.textContent = anchor.quote || document.title;
-            selectedMetaEl.textContent = `${getDisplayLocation(anchor)} · relation: ${evidence.relation}`;
+            selectedTitleEl.textContent = anchor?.quote || document?.title || "未命名锚点";
+            selectedMetaEl.textContent = anchor ? `${getDisplayLocation(anchor)} · relation: ${evidence.relation}` : "当前证据缺少锚点信息。";
             selectedExcerptEl.textContent = evidence.rationale;
 
             if (pdfAnchor) {
+                const normalizedPdfLink = normalizePdfLink(pdfAnchor.deep_link);
                 selectedPdfHintEl.textContent = `当前联动到 ${getDisplayLocation(pdfAnchor)}，可继续在浏览器 PDF 阅读器中放大或翻页。`;
-                pdfFrameEl.src = pdfAnchor.deep_link;
-                pdfActionEl.href = pdfAnchor.deep_link;
+                pdfFrameEl.src = normalizedPdfLink;
+                pdfActionEl.href = normalizedPdfLink;
                 pdfActionEl.textContent = `打开 PDF p${pdfAnchor.locator.page}`;
             } else {
                 selectedPdfHintEl.textContent = "当前 finding 没有关联 PDF 锚点。";
-                pdfActionEl.href = "Clean_Code.pdf#page=1";
+                pdfFrameEl.src = "about:blank";
+                pdfActionEl.href = "#";
                 pdfActionEl.textContent = "打开 PDF 页面";
             }
 
@@ -1048,38 +1652,255 @@
                     <p>${escapeHtml(message)}</p>
                 </div>
             `;
+            setStatusBanner(message, true);
         }
 
-        async function bootstrap() {
-            try {
-                const response = await fetch("./schema-template.json", { cache: "no-store" });
-                if (!response.ok) {
-                    throw new Error(`schema-template.json 加载失败，HTTP ${response.status}`);
-                }
-                const schema = await response.json();
-                initializeSchemaMaps(schema);
-                renderHero();
-                renderSummary();
-                renderCodeView();
+        function applySchema(schema) {
+            initializeSchemaMaps(schema);
+            state.activeGroupId = "all";
+            renderHero();
+            renderSummary();
+            renderCodeView();
+            renderGroups();
+            renderFindings();
 
-                const defaults = schema.ui_indexes.default_selected;
+            const defaults = schema.ui_indexes.default_selected;
+            if (schema.findings.length && defaults?.finding_id && defaults?.evidence_id) {
                 state.selectedFindingId = defaults.finding_id;
                 state.selectedEvidenceId = defaults.evidence_id;
-
-                renderGroups();
-                renderFindings();
                 updateClaimMeta();
                 renderSourceList();
                 updatePreview();
-            } catch (error) {
-                showError(error.message || "未知错误");
-                heroDescriptionEl.textContent = "schema 加载失败，无法展示 mapping 结果。";
+                return;
             }
+
+            state.selectedFindingId = null;
+            state.selectedEvidenceId = null;
+            resetSelectionPanel(schema.findings.length ? "当前结果缺少默认选中项。" : "当前结果暂无 finding。");
         }
+
+        async function fetchJson(url, options) {
+            const response = await fetch(url, options);
+            const payload = await response.json().catch(() => null);
+            if (!response.ok) {
+                const message = payload?.message || `请求失败，HTTP ${response.status}`;
+                throw new Error(message);
+            }
+            return payload;
+        }
+
+        function updateRuntimeStatus(envelope) {
+            const job = envelope?.job;
+            state.currentJob = job || null;
+            state.currentJobId = job?.job_id || null;
+            if (!job) {
+                jobStatusTextEl.textContent = "尚未创建任务";
+                jobStageTextEl.textContent = "等待输入";
+                renderRuntimeProgress(null);
+                return;
+            }
+            jobStatusTextEl.textContent = `状态：${job.status}${job.error_code ? ` · ${job.error_code}` : ""}`;
+            jobStageTextEl.textContent = `阶段：${job.stage} · ${job.progress_percent}%`;
+            setMode("job", envelope.viewer_url);
+            renderRuntimeProgress(job);
+        }
+
+        async function loadRuntimeLogs(jobId) {
+            if (!apiBaseUrl) {
+                return;
+            }
+            const runtime = await fetchJson(`${apiBaseUrl}/api/mapping/jobs/${encodeURIComponent(jobId)}/logs`, {
+                cache: "no-store"
+            });
+            renderRuntimeLogs(runtime.entries || []);
+        }
+
+        async function loadDemoSchema() {
+            clearPolling();
+            setMode("demo", `${location.origin || location.pathname}?demo=1`);
+            jobStatusTextEl.textContent = "Demo 模式，无真实 job";
+            jobStageTextEl.textContent = "阶段：已加载静态 schema";
+            setStatusBanner("已切换到 Demo 模式，当前展示的是仓库内静态 schema。");
+            renderRuntimeProgress({
+                stage: "publish",
+                progress_percent: 100,
+                status: "completed"
+            });
+            renderRuntimeLogs([
+                {
+                    id: "demo-host",
+                    stage: "ingest",
+                    status: "completed",
+                    source: "host",
+                    title: "加载静态 Demo",
+                    detail: "当前不是实时任务，而是直接从 schema-template.json 读取一份固定 mapping 结果。"
+                },
+                {
+                    id: "demo-publish",
+                    stage: "publish",
+                    status: "completed",
+                    source: "publisher",
+                    title: "Demo 结果已就绪",
+                    detail: "可以查看固定 finding、证据导航、PDF 预览与交叉引用，但不会展示真实后台运行日志。"
+                }
+            ]);
+            const schema = await fetchJson("./schema-template.json", { cache: "no-store" });
+            applySchema(schema);
+        }
+
+        async function loadJobResult(jobId) {
+            const result = await fetchJson(`${apiBaseUrl}/api/mapping/jobs/${encodeURIComponent(jobId)}/result`);
+            applySchema(result.mapping_result);
+            setStatusBanner(`任务 ${jobId} 已完成，已加载最新 mapping 结果。`);
+        }
+
+        function schedulePoll(jobId, delayMs) {
+            clearPolling();
+            state.pollHandle = setTimeout(() => {
+                void pollJob(jobId);
+            }, delayMs);
+        }
+
+        async function pollJob(jobId) {
+            if (!apiBaseUrl) {
+                throw new Error("当前页面未通过 HTTP Gateway 打开，无法轮询真实任务。");
+            }
+            const envelope = await fetchJson(`${apiBaseUrl}/api/mapping/jobs/${encodeURIComponent(jobId)}`, {
+                cache: "no-store"
+            });
+            updateRuntimeStatus(envelope);
+            try {
+                await loadRuntimeLogs(jobId);
+            } catch (error) {
+                renderRuntimeLogs([
+                    {
+                        id: "runtime-log-fetch-error",
+                        stage: envelope.job.stage,
+                        status: "running",
+                        source: "host",
+                        title: "运行日志暂不可用",
+                        detail: error.message || "日志接口暂时不可达，但任务仍在继续执行。"
+                    }
+                ]);
+            }
+
+            if (envelope.job.status === "completed" || envelope.job.status === "partial") {
+                await loadJobResult(jobId);
+                return;
+            }
+
+            if (envelope.job.status === "failed") {
+                showError(`任务失败：${envelope.job.error_message || envelope.job.error_code || "未知错误"}`);
+                return;
+            }
+
+            setStatusBanner(`任务 ${jobId} 运行中：${envelope.job.stage} · ${envelope.job.progress_percent}%`);
+            schedulePoll(jobId, envelope.recommended_poll_interval_ms || 1000);
+        }
+
+        async function submitJavaFile(file) {
+            if (!file) {
+                throw new Error("请先选择一个 .java 文件。");
+            }
+            if (!file.name.toLowerCase().endsWith(".java")) {
+                throw new Error("首版仅支持上传单个 .java 文件。");
+            }
+            if (!apiBaseUrl) {
+                throw new Error("请通过本地 HTTP Gateway 打开该页面后再上传文件。");
+            }
+
+            const sourceCode = await file.text();
+            const created = await fetchJson(`${apiBaseUrl}/api/mapping/jobs`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    file_name: file.name,
+                    language: "java",
+                    source_code: sourceCode
+                })
+            });
+
+            updateQuery({ jobId: created.job.job_id });
+            updateRuntimeStatus(created);
+            claimListEl.innerHTML = '<div class="loading">任务已创建，正在等待 mapping pipeline 产出结果...</div>';
+            sourceListEl.innerHTML = '<div class="loading">任务完成后会展示证据列表。</div>';
+            setStatusBanner(`任务 ${created.job.job_id} 已创建，正在进入队列。`);
+            resetRuntimeLogs("Host 已接收上传请求，接下来会逐步显示 parser、RAG 检索、LLM synthesis 和 schema publish 的过程。");
+            schedulePoll(created.job.job_id, 0);
+        }
+
+        async function bootstrap() {
+            const params = new URLSearchParams(location.search);
+            const queryJobId = params.get("jobId");
+            const demoMode = params.get("demo") === "1";
+
+            heroDescriptionEl.textContent = "支持两种模式：Demo 静态结果浏览，或通过本地 HTTP Gateway 驱动真实 mapping job。";
+            heroPillsEl.innerHTML = [
+                '<div class="pill">HTTP Gateway</div>',
+                '<div class="pill">MCP Reuse</div>',
+                '<div class="pill">Job Polling</div>'
+            ].join("");
+
+            if (queryJobId) {
+                setStatusBanner(`正在加载任务 ${queryJobId} 的最新状态...`);
+                try {
+                    await pollJob(queryJobId);
+                    return;
+                } catch (error) {
+                    showError(error.message || "任务加载失败");
+                    return;
+                }
+            }
+
+            if (demoMode) {
+                try {
+                    await loadDemoSchema();
+                    return;
+                } catch (error) {
+                    showError(error.message || "Demo 加载失败");
+                    return;
+                }
+            }
+
+            setMode("idle", "尚未生成");
+            jobStatusTextEl.textContent = "尚未创建任务";
+            jobStageTextEl.textContent = "等待上传或加载 Demo";
+            renderRuntimeProgress(null);
+            resetRuntimeLogs("上传 `.java` 文件后，这里会开始流式刷新运行过程，而不是只显示一个灰色百分比。");
+            claimListEl.innerHTML = '<div class="loading">请先上传 `.java` 文件，或点击“加载 Demo 结果”。</div>';
+            resetSelectionPanel("上传真实 Java 文件后，这里会切换到新生成的 mapping 结果。");
+            setStatusBanner("当前处于空闲模式，可以上传文件或切换到 Demo 模式。");
+        }
+
+        uploadFormEl.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            setBusy(true);
+            try {
+                await submitJavaFile(javaFileInputEl.files[0]);
+            } catch (error) {
+                showError(error.message || "上传失败");
+            } finally {
+                setBusy(false);
+            }
+        });
+
+        demoButtonEl.addEventListener("click", async () => {
+            setBusy(true);
+            try {
+                updateQuery({ demo: "1" });
+                await loadDemoSchema();
+            } catch (error) {
+                showError(error.message || "Demo 加载失败");
+            } finally {
+                setBusy(false);
+            }
+        });
 
         codeActionEl.addEventListener("click", () => {
             const evidence = getEvidenceById(state.selectedEvidenceId);
-            const anchor = getAnchorById(evidence.anchor_id);
+            const anchor = evidence ? getAnchorById(evidence.anchor_id) : null;
             highlightCodeAnchor(anchor);
         });
 

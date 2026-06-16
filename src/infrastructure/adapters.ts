@@ -229,7 +229,7 @@ function pdfAnchor(id: string, page: number, quote: string): MappingAnchor {
       bbox: null,
       quote
     },
-    deep_link: `Clean_Code.pdf#page=${page}&zoom=page-width`,
+    deep_link: `/api/corpus/pdf#page=${page}&zoom=page-width`,
     quote,
     confidence: 0.9
   };
@@ -290,12 +290,92 @@ function extractJsonObject(text: string): string {
     return fencedMatch[1].trim();
   }
 
-  const objectMatch = trimmed.match(/\{[\s\S]*\}/);
-  if (objectMatch) {
-    return objectMatch[0];
+  const firstBrace = trimmed.indexOf("{");
+  if (firstBrace >= 0) {
+    let depth = 0;
+    let inString = false;
+    let escaping = false;
+
+    for (let index = firstBrace; index < trimmed.length; index += 1) {
+      const char = trimmed[index];
+
+      if (escaping) {
+        escaping = false;
+        continue;
+      }
+
+      if (char === "\\") {
+        escaping = true;
+        continue;
+      }
+
+      if (char === "\"") {
+        inString = !inString;
+        continue;
+      }
+
+      if (inString) {
+        continue;
+      }
+
+      if (char === "{") {
+        depth += 1;
+      } else if (char === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          return trimmed.slice(firstBrace, index + 1);
+        }
+      }
+    }
   }
 
   throw new Error("LLM response did not contain a JSON object");
+}
+
+function buildRepairMessages(raw: string, errorMessage: string): LlmChatMessage[] {
+  return [
+    {
+      role: "system",
+      content:
+        "你是一个严格 JSON 修复器。你的任务是把用户给出的内容修复成严格合法的 JSON，只输出 JSON 对象本身，不要输出解释、Markdown 或代码块。不要新增字段，不要改动业务语义，只修复语法与转义问题。"
+    },
+    {
+      role: "user",
+      content: JSON.stringify(
+        {
+          task: "repair_invalid_json",
+          error_message: errorMessage,
+          invalid_json: raw
+        },
+        null,
+        2
+      )
+    }
+  ];
+}
+
+async function parseLlmSynthesisResponse(
+  raw: string,
+  repair: (input: { raw: string; errorMessage: string }) => Promise<string>
+): Promise<z.infer<typeof llmSynthesisResponseSchema>> {
+  try {
+    return llmSynthesisResponseSchema.parse(JSON.parse(extractJsonObject(raw)));
+  } catch (initialError) {
+    const initialMessage = initialError instanceof Error ? initialError.message : String(initialError);
+    const repairedRaw = await repair({
+      raw,
+      errorMessage: initialMessage
+    });
+
+    try {
+      return llmSynthesisResponseSchema.parse(JSON.parse(extractJsonObject(repairedRaw)));
+    } catch (repairError) {
+      const repairMessage = repairError instanceof Error ? repairError.message : String(repairError);
+      throw new Error(
+        `Failed to parse LLM synthesis JSON after repair. Initial error: ${initialMessage}. Repair error: ${repairMessage}`
+      );
+    }
+  }
 }
 
 function findLine(lines: string[], matcher: RegExp): number | null {
@@ -709,7 +789,7 @@ export class McpPdfCorpusRetrieverAdapter implements PdfCorpusRetrieverPort {
                   : null,
                 quote: text
               },
-              deep_link: `Clean_Code.pdf#page=${match.page}&zoom=page-width`,
+              deep_link: `/api/corpus/pdf#page=${match.page}&zoom=page-width`,
               quote: text,
               confidence: 0.9
             };
@@ -799,7 +879,7 @@ function buildDocuments(input: SynthesisInput): MappingSchema["documents"] {
       id: "doc-clean-code-pdf",
       kind: "pdf",
       title: "Clean Code",
-      path: "Clean_Code.pdf",
+      path: "/api/corpus/pdf",
       page_count: 462
     },
     {
@@ -1023,7 +1103,12 @@ export class DeepSeekLlmSynthesisAdapter implements LlmSynthesisPort {
       }),
       temperature: 0.1
     });
-    const parsed = llmSynthesisResponseSchema.parse(JSON.parse(extractJsonObject(raw)));
+    const parsed = await parseLlmSynthesisResponse(raw, async ({ raw: invalidRaw, errorMessage }) =>
+      this.client.completeJson({
+        messages: buildRepairMessages(invalidRaw, errorMessage),
+        temperature: 0
+      })
+    );
     const findings: MappingFinding[] = [];
     const evidenceLinks: MappingEvidenceLink[] = [];
     const crossRefs: MappingCrossRef[] = [];

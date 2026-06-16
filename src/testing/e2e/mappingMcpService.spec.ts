@@ -43,11 +43,17 @@ afterEach(() => {
 
 describe("mapping MCP service", () => {
   it("runs happy path and returns schema-compatible mapping result", async () => {
+    const openedUrls: string[] = [];
     const app = createApplication({
       baseDir: createTempDir(),
       llmClient: new FakeLlmClient(createAbstractTaskEngineLlmResponse())
     });
-    const service = createMappingMcpService(app);
+    const service = createMappingMcpService(app, {
+      gatewayBaseUrl: "http://127.0.0.1:8765",
+      openUrl: async (url) => {
+        openedUrls.push(url);
+      }
+    });
 
     const created = await service.mappingCreateJob({
       file_name: "AbstractTaskEngine.java",
@@ -56,9 +62,16 @@ describe("mapping MCP service", () => {
     });
 
     await waitForCompletion(service, created.job_id);
+    const status = await service.mappingGetJob({ job_id: created.job_id });
+    const viewer = await service.mappingOpenViewer({ job_id: created.job_id });
 
     const result = await service.mappingGetResult({ job_id: created.job_id });
 
+    expect(created.viewer_url).toBe("http://127.0.0.1:8765/cross-validation.html?jobId=" + created.job_id);
+    expect(created.next_action).toBe("poll_job");
+    expect(status.links.some((item) => item.rel === "viewer")).toBe(true);
+    expect(viewer.opened).toBe(true);
+    expect(openedUrls).toEqual([viewer.viewer_url]);
     expect(result.status).toBe("completed");
     expect(result.mapping_result.schema_version).toBe("1.0.0");
     expect(result.mapping_result.findings.length).toBeGreaterThan(0);
@@ -71,7 +84,10 @@ describe("mapping MCP service", () => {
       baseDir: createTempDir(),
       llmClient: new FakeLlmClient(createAbstractTaskEngineLlmResponse())
     });
-    const service = createMappingMcpService(app);
+    const service = createMappingMcpService(app, {
+      gatewayBaseUrl: "http://127.0.0.1:8765",
+      openUrl: async () => {}
+    });
 
     const created = await service.mappingCreateJob({
       file_name: "HelloWorld.java",

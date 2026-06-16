@@ -1,16 +1,24 @@
 import type { LlmChatClientPort, LlmChatMessage } from "../../infrastructure/adapters.js";
 
 export class FakeLlmClient implements LlmChatClientPort {
+  private readonly queuedResponses: string[];
+
   constructor(
-    private readonly responseText: string,
+    responseText: string | string[],
     private readonly onCall?: (messages: LlmChatMessage[]) => void
-  ) {}
+  ) {
+    this.queuedResponses = Array.isArray(responseText) ? [...responseText] : [responseText];
+  }
 
   closed = false;
 
   async completeJson(input: { messages: LlmChatMessage[] }): Promise<string> {
     this.onCall?.(input.messages);
-    return this.responseText;
+    const next = this.queuedResponses.shift();
+    if (!next) {
+      throw new Error("FakeLlmClient ran out of queued responses");
+    }
+    return next;
   }
 
   async close(): Promise<void> {

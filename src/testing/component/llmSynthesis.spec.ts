@@ -79,4 +79,45 @@ describe("DeepSeekLlmSynthesisAdapter", () => {
     expect(result.schema.findings[0]?.primary_pdf_anchor_ids).toEqual(["anchor-pdf-p66-p66-match-2"]);
     expect(result.schema.evidence_links.some((item) => item.anchor_id === "anchor-pdf-p66-p66-match-2")).toBe(true);
   });
+
+  it("repairs invalid JSON from the first LLM response and retries once", async () => {
+    const invalidJson = `{
+  "findings": [
+    {
+      "id": "finding-complete-too-much",
+      "observation_category": ["function_design"],
+      "title": "方法职责过多",
+      "summary": "该方法同时做前置钩子、状态推进与 "下一任务" 构造",
+      "severity": "high",
+      "concept_id": "concept-function-design",
+      "primary_code_anchor_ids": ["anchor-code-complete-method"],
+      "primary_pdf_anchor_ids": ["anchor-pdf-p66-p66-match-2"],
+      "tags": ["职责过多", "流程编排"]
+    }
+  ],
+  "cross_refs": []
+}`;
+
+    const adapter = new DeepSeekLlmSynthesisAdapter(
+      new FakeLlmClient([invalidJson, createAbstractTaskEngineLlmResponse()]),
+      { model: "deepseek-v4-flash" }
+    );
+
+    const result = await adapter.synthesize({
+      submissionId: "sub_1",
+      fileName: "AbstractTaskEngine.java",
+      sourceCode: "class AbstractTaskEngine {}",
+      observations,
+      codeAnchors,
+      evidenceCandidates,
+      corpusId: "clean-code",
+      corpusVersionId: "v1",
+      mappingProfileId: "default",
+      modelProfileId: "deepseek"
+    });
+
+    expect(result.status).toBe("completed");
+    expect(result.schema.findings[0]?.title).toBe("方法职责过多");
+    expect(result.schema.evidence_links.some((item) => item.anchor_id === "anchor-pdf-p66-p66-match-2")).toBe(true);
+  });
 });

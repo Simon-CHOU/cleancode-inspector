@@ -170,6 +170,26 @@ export interface MappingGetResultOutput {
   mapping_result: MappingSchema;
 }
 
+export interface RuntimeLogEntry {
+  id: string;
+  stage: MappingStage;
+  status: "completed" | "running" | "pending" | "failed";
+  source: "host" | "parser" | "analysis" | "rag" | "llm" | "validator" | "publisher";
+  title: string;
+  detail: string;
+  lines?: string[];
+  artifact_path?: string;
+  updated_at?: string;
+}
+
+export interface MappingGetRuntimeOutput {
+  job_id: string;
+  status: JobStatus;
+  stage: MappingStage;
+  progress_percent: number;
+  entries: RuntimeLogEntry[];
+}
+
 export interface ParsedMethod {
   name: string;
   startLine: number;
